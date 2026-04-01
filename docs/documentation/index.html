@@ -22,48 +22,17 @@
         .prose :not(pre) > code { background: #E8ECFF; padding: 2px 6px; border-radius: 4px; color: #2843E2; font-weight: 600; }
         .prose table { font-size: 0.9em; }
         .prose th { white-space: nowrap; }
-        .doc-prose { --tw-prose-headings: font-weight: 800; }
         .doc-prose h1 { font-size: 1.875rem; border-bottom: 1px solid rgba(229,224,216,0.6); padding-bottom: 1rem; margin-bottom: 1.5rem; font-weight: 800; }
-        .doc-prose h2 { font-size: 1.25rem; margin-top: 2.5rem; font-weight: 800; }
+        .doc-prose h2 { font-size: 1.25rem; margin-top: 2.5rem; font-weight: 800; color: #E8673C; }
         .doc-prose h3 { font-size: 1.125rem; font-weight: 800; }
-        .doc-prose a { text-decoration: none; }
+        .doc-prose a { color: #2843E2; text-decoration: none; }
         .doc-prose a:hover { text-decoration: underline; }
         .doc-prose code::before, .doc-prose code::after { content: none; }
         .prose hr { border-color: #e5e0d8; }
-        .prose h2 { color: #E8673C; }
-        .prose a { color: #2843E2; }
     </style>
 </head>
 <body class="bg-brand-cream text-gray-900 antialiased">
     <div id="app"></div>
-    <script>window.DOC_PAGE = { id: 'index', file: null };</script>
-    <script src="layout.js?v=2"></script>
-    <script>
-        // Render overview content directly
-        var docEl = document.getElementById('doc-content');
-        if (docEl) docEl.innerHTML =
-            '<h1>Fancoolo FX Documentation</h1>' +
-            '<p class="text-lg text-gray-600">A class-driven GSAP animation wrapper for WordPress and static sites.</p>' +
-            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 not-prose">' +
-            '<a href="installation.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Installation</h3><p class="text-sm text-gray-500">Setup, dependencies, and loading order</p></a>' +
-            '<a href="effects.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Effects</h3><p class="text-sm text-gray-500">All 5 effects with defaults and usage</p></a>' +
-            '<a href="trigger-modes.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Trigger Modes</h3><p class="text-sm text-gray-500">Page load, scroll trigger, section trigger</p></a>' +
-            '<a href="modifiers.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Modifiers</h3><p class="text-sm text-gray-500">Duration, delay, stagger, easing, scroll position</p></a>' +
-            '<a href="configuration.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Configuration</h3><p class="text-sm text-gray-500">tagMap, sectionSelector, scrollStart</p></a>' +
-            '<a href="javascript-api.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">JavaScript API</h3><p class="text-sm text-gray-500">FX global for compound sequences</p></a>' +
-            '<a href="wordpress.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">WordPress</h3><p class="text-sm text-gray-500">Gutenberg integration guide</p></a>' +
-            '<a href="examples.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Examples</h3><p class="text-sm text-gray-500">Full page patterns and recipes</p></a>' +
-            '<a href="skill.html" class="block p-5 bg-white rounded-xl border border-gray-200/60 hover:border-brand-blue/30 hover:shadow-md transition">' +
-            '<h3 class="font-bold text-base mb-1">Claude Code Skill</h3><p class="text-sm text-gray-500">Use Fancoolo FX with Claude Code AI</p></a>' +
-            '</div>';
-    </script>
+    <script src="layout.js?v=3"></script>
 </body>
 </html>
