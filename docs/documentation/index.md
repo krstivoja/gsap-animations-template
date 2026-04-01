@@ -1,8 +1,10 @@
 ---
-title: Documentation
-nav_order: 1
-has_children: true
+title: "Documentation"
 permalink: /documentation/
+layout: single
+sidebar:
+  nav: "docs"
+toc: true
 ---
 
 # FX Animation SDK
@@ -30,11 +32,11 @@ npm install
 
 | Page | Description |
 |------|-------------|
-| [Installation](installation) | Setup, dependencies, and loading order |
-| [Effects](effects) | All 5 animation effects with defaults and usage |
-| [Trigger Modes](trigger-modes) | Page load, scroll trigger, section trigger |
-| [Modifiers](modifiers) | Override timing, duration, delay, stagger, easing, and scroll position |
-| [Configuration](configuration) | Global config, tagMap, sectionSelector, scrollStart |
-| [JavaScript API](javascript-api) | FX global for compound sequences and dynamic content |
-| [WordPress & Gutenberg](wordpress) | Integration guide for WordPress themes and blocks |
-| [Examples](examples) | Full page examples, common patterns, and recipes |
+| [Installation](/documentation/installation/) | Setup, dependencies, and loading order |
+| [Effects](/documentation/effects/) | All 5 animation effects with defaults and usage |
+| [Trigger Modes](/documentation/trigger-modes/) | Page load, scroll trigger, section trigger |
+| [Modifiers](/documentation/modifiers/) | Override timing, duration, delay, stagger, easing, and scroll position |
+| [Configuration](/documentation/configuration/) | Global config, tagMap, sectionSelector, scrollStart |
+| [JavaScript API](/documentation/javascript-api/) | FX global for compound sequences and dynamic content |
+| [WordPress & Gutenberg](/documentation/wordpress/) | Integration guide for WordPress themes and blocks |
+| [Examples](/documentation/examples/) | Full page examples, common patterns, and recipes |

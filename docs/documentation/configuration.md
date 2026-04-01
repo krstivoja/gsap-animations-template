@@ -1,41 +1,12 @@
 ---
-title: Configuration
-parent: Documentation
-nav_order: 5
+title: "Configuration"
+permalink: /documentation/configuration/
+layout: single
+sidebar:
+  nav: "docs"
+toc: true
+toc_sticky: true
 ---
-
-# Configuration
-
-FX has two global config options that control section-based triggering and automatic tag-based animation.
-
-## Config Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `sectionSelector` | String | `'section'` | CSS selector for containers that enable bare-class and tagMap auto-triggering |
-| `scrollStart` | String | `'top 85%'` | Default ScrollTrigger start position for all scroll-triggered animations |
-| `scrollOnce` | Boolean | `true` | Whether scroll animations play once or replay every time the element enters the viewport |
-| `tagMap` | Object or null | `null` | Map of CSS selectors to effect names for zero-class animation |
-
-## Setting Configuration
-
-Add a `<script>` block **before** the `fx.js` script tag:
-
-```html
-<script>
-window.__FX_CONFIG__ = {
-    sectionSelector: 'section',
-    tagMap: {
-        'h1,h2,h3,h4,h5,h6': 'textReveal',
-        'p,blockquote':       'textReveal',
-        'img,video':          'reveal',
-    }
-};
-</script>
-<script src="src/fx.js"></script>
-```
-
-When FX loads, it reads `window.__FX_CONFIG__` and applies those settings before scanning the DOM.
 
 ---
 

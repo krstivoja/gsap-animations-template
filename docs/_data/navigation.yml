@@ -1,24 +1,4 @@
-title: FX Animation SDK
-description: A lightweight, class-driven GSAP animation framework.
-remote_theme: mmistakes/minimal-mistakes
-minimal_mistakes_skin: default
-
-plugins:
-  - jekyll-remote-theme
-
-defaults:
-  - scope:
-      path: "documentation"
-      type: pages
-    values:
-      layout: single
-      sidebar:
-        nav: "docs"
-      toc: true
-      toc_sticky: true
-
-# Sidebar navigation
-docs_nav:
+docs:
   - title: "Getting Started"
     children:
       - title: "Installation"
@@ -41,9 +21,3 @@ docs_nav:
         url: /documentation/wordpress/
       - title: "Examples"
         url: /documentation/examples/
-
-aux_links:
-  "GitHub":
-    - "https://github.com/krstivoja/gsap-animations-template"
-  "Live Demo":
-    - "https://krstivoja.github.io/gsap-animations-template/"

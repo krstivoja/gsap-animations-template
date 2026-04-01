@@ -1,22 +1,12 @@
 ---
-title: Effects
-parent: Documentation
-nav_order: 2
+title: "Effects"
+permalink: /documentation/effects/
+layout: single
+sidebar:
+  nav: "docs"
+toc: true
+toc_sticky: true
 ---
-
-# Effects Reference
-
-FX ships with 5 animation effects. Each can be triggered on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class).
-
-## Quick Reference Table
-
-| Effect | Class | JS Function | Description |
-|--------|-------|-------------|-------------|
-| Text Reveal | `fx-text-reveal` | `FX.textReveal()` | Split text into lines, mask reveal upward |
-| Reveal | `fx-reveal` | `FX.reveal()` | Slide up from below with fade |
-| Spin Reveal | `fx-spin-reveal` | `FX.spinReveal()` | Rotate and scale in |
-| BG Reveal | `fx-bg-reveal` | `FX.bgReveal()` | Background container slide up |
-| Scale In | `fx-scale-in` | `FX.scaleIn()` | Scale up from smaller size with fade |
 
 ---
 
