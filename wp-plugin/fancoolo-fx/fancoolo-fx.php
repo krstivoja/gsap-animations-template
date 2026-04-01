@@ -201,33 +201,35 @@ function fancoolo_fx_render_admin_page() {
 			and they will animate automatically.
 		</p>
 
-		<!-- ── Editor ── -->
-		<h2 style="margin-top: 24px;">Custom JavaScript</h2>
-		<p>
-			This code loads after fx.js on the frontend. Leave empty to use defaults only.<br>
-			<strong>Important:</strong> Always add <code>FX.init();</code> at the end when changing config — it re-scans the page with your new settings.
-		</p>
-		<form method="post">
-			<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
-			<textarea
-				id="fancoolo-fx-editor"
-				name="fancoolo_fx_code"
-				rows="16"
-				style="width: 100%; font-family: monospace;"
-			><?php echo esc_textarea( $content ); ?></textarea>
-			<p class="submit">
-				<input type="submit" name="fancoolo_fx_save" class="button button-primary" value="Save Changes">
-			</p>
-		</form>
-
 		<!-- ── Tabs ── -->
 		<div class="ffx-tabs">
-			<button class="ffx-tab active" data-tab="config">Config Reference</button>
+			<button class="ffx-tab active" data-tab="editor">Editor</button>
+			<button class="ffx-tab" data-tab="config">Config Reference</button>
 			<button class="ffx-tab" data-tab="classes">Classes Reference</button>
 		</div>
 
+		<!-- ═══ Editor Tab ═══ -->
+		<div class="ffx-panel active" data-panel="editor">
+			<p>
+				This code loads after fx.js on the frontend. Leave empty to use defaults only.<br>
+				<strong>Important:</strong> Always add <code>FX.init();</code> at the end when changing config — it re-scans the page with your new settings.
+			</p>
+			<form method="post">
+				<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
+				<textarea
+					id="fancoolo-fx-editor"
+					name="fancoolo_fx_code"
+					rows="20"
+					style="width: 100%; font-family: monospace;"
+				><?php echo esc_textarea( $content ); ?></textarea>
+				<p class="submit">
+					<input type="submit" name="fancoolo_fx_save" class="button button-primary" value="Save Changes">
+				</p>
+			</form>
+		</div>
+
 		<!-- ═══ Config Reference Tab ═══ -->
-		<div class="ffx-panel active" data-panel="config">
+		<div class="ffx-panel" data-panel="config">
 
 			<h3>Config Options</h3>
 			<table class="widefat fixed striped" style="max-width: 700px;">
