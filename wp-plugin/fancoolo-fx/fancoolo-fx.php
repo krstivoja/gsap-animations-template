@@ -357,7 +357,11 @@ FX.init();</pre>
 			<div class="ffx-class-row"><code data-copy>fx-start-[top center]</code><span class="ffx-desc">Scroll trigger start position</span></div>
 		</div>
 
-		<p style="margin-top: 24px;">
+		<p style="margin-top: 24px; color: #646970;">
+			This code loads after fx.js on the frontend. Leave empty to use defaults only.<br>
+			<strong style="color:#1d2327;">Important:</strong> Always add <code>FX.init();</code> at the end when changing config — it re-scans the page with your new settings.
+		</p>
+		<p style="margin-top: 12px;">
 			<a href="https://krstivoja.github.io/gsap-animations-template/documentation/" target="_blank">
 				Full Documentation &rarr;
 			</a>
