@@ -363,6 +363,18 @@ FX.init();</pre>
 
 	<script>
 	jQuery(function($) {
+		// Fallback copy that works on HTTP (no clipboard API needed)
+		function copyText(text) {
+			var ta = document.createElement('textarea');
+			ta.value = text;
+			ta.style.position = 'fixed';
+			ta.style.opacity = '0';
+			document.body.appendChild(ta);
+			ta.select();
+			document.execCommand('copy');
+			document.body.removeChild(ta);
+		}
+
 		// Tab switching
 		$('.ffx-tab').on('click', function() {
 			var tab = $(this).data('tab');
@@ -376,19 +388,17 @@ FX.init();</pre>
 		$('.ffx-copy-btn').on('click', function() {
 			var btn = $(this);
 			var target = $('#' + btn.data('target'));
-			navigator.clipboard.writeText(target.text()).then(function() {
-				btn.text('Copied!').addClass('copied');
-				setTimeout(function() { btn.text('Copy').removeClass('copied'); }, 1500);
-			});
+			copyText(target.text());
+			btn.text('Copied!').addClass('copied');
+			setTimeout(function() { btn.text('Copy').removeClass('copied'); }, 1500);
 		});
 
 		// Copy class on click
 		$('[data-copy]').on('click', function() {
 			var el = $(this);
-			navigator.clipboard.writeText(el.text()).then(function() {
-				el.addClass('copied');
-				setTimeout(function() { el.removeClass('copied'); }, 1000);
-			});
+			copyText(el.text());
+			el.addClass('copied');
+			setTimeout(function() { el.removeClass('copied'); }, 1000);
 		});
 	});
 	</script>
