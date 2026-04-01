@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Effects — Fancoolo FX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: {
+                brand: { blue: '#2843E2', 'blue-light': '#E8ECFF', orange: '#E8673C', 'orange-light': '#FEF0EB', cream: '#F5F2ED' }
+            }}}
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .prose pre { background: #1E293B !important; border-radius: 8px; }
+        .prose code { font-size: 0.85em; }
+        .prose :not(pre) > code { background: #E8ECFF; padding: 2px 6px; border-radius: 4px; color: #2843E2; font-weight: 600; }
+        .prose table { font-size: 0.9em; }
+        .prose th { white-space: nowrap; }
+        .prose hr { border-color: #e5e0d8; }
+        .prose h2 { color: #E8673C; }
+        .prose a { color: #2843E2; }
+    </style>
+</head>
+<body class="bg-brand-cream text-gray-900 antialiased">
+    <div id="app"></div>
+    <script>window.DOC_PAGE = { id: 'effects', file: 'effects.md' };</script>
+    <script src="layout.js"></script>
+</body>
+</html>
