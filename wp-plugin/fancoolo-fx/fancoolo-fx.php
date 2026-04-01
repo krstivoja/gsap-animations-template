@@ -205,10 +205,17 @@ function fancoolo_fx_render_admin_page() {
 		</p>
 
 
-		<!-- ═══ Editor ═══ -->
-		<form method="post">
-			<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
-			<div style="position:relative; background:#fff; border:1px solid #c3c4c7; border-bottom:none;">
+		<!-- ── Tabs ── -->
+		<div class="ffx-tabs">
+			<button class="ffx-tab active" data-tab="editor">Editor</button>
+			<button class="ffx-tab" data-tab="config">Config Reference</button>
+			<button class="ffx-tab" data-tab="classes">Classes Reference</button>
+		</div>
+
+		<!-- ═══ Editor Tab ═══ -->
+		<div class="ffx-panel ffx-panel-editor active" data-panel="editor">
+			<form method="post">
+				<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
 				<input type="submit" name="fancoolo_fx_save" class="button button-primary ffx-save-btn" value="Save Changes">
 				<textarea
 					id="fancoolo-fx-editor"
@@ -216,17 +223,11 @@ function fancoolo_fx_render_admin_page() {
 					rows="20"
 					style="width: 100%; font-family: monospace;"
 				><?php echo esc_textarea( $content ); ?></textarea>
-			</div>
-		</form>
-
-		<!-- ── Reference Tabs ── -->
-		<div class="ffx-tabs">
-			<button class="ffx-tab active" data-tab="config">Config Reference</button>
-			<button class="ffx-tab" data-tab="classes">Classes Reference</button>
+			</form>
 		</div>
 
 		<!-- ═══ Config Reference Tab ═══ -->
-		<div class="ffx-panel active" data-panel="config">
+		<div class="ffx-panel" data-panel="config">
 
 			<h3>Config Options</h3>
 			<table class="widefat fixed striped" style="max-width: 700px;">
