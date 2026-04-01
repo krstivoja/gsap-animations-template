@@ -1,0 +1,27 @@
+name: Release WordPress Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create plugin zip
+        run: |
+          cd wp-plugin
+          zip -r ../fancoolo-fx.zip fancoolo-fx/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: fancoolo-fx.zip
+          generate_release_notes: true
