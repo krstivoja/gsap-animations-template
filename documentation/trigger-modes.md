@@ -58,6 +58,52 @@ When the SDK sees a `-st` element, it creates a GSAP ScrollTrigger with these de
 - **`start: 'top 85%'`** — the animation fires when the top edge of the element (or its parent) reaches 85% down from the top of the viewport. This means the element is near the bottom of the screen.
 - **`once: true`** — the animation plays only once. Scrolling back up and down again won't replay it.
 
+### Changing the trigger position
+
+The `start` value uses GSAP's ScrollTrigger format: `"triggerPosition viewportPosition"`.
+
+**Per-element** — use the `fx-start-[]` modifier class:
+
+```html
+<!-- Triggers when element reaches the center of the viewport -->
+<h2 class="fx-text-reveal-st fx-start-[top center]">Triggers at center</h2>
+
+<!-- Triggers earlier (near the bottom of viewport) -->
+<img class="fx-reveal-st fx-start-[top 90%]" src="photo.jpg" />
+
+<!-- Triggers when element reaches the top of viewport -->
+<div class="fx-scale-in-st fx-start-[top top]">Late trigger</div>
+```
+
+**Globally** — change the default for all scroll-triggered animations:
+
+```html
+<script>
+window.__FX_CONFIG__ = {
+    scrollStart: 'top center',  // default: 'top 85%'
+    scrollOnce: false,          // default: true (replay on every scroll)
+};
+</script>
+<script src="src/fx.js"></script>
+```
+
+Or at runtime:
+
+```js
+FX.config.scrollStart = 'top 70%';
+FX.config.scrollOnce = false;
+```
+
+**Common start values:**
+
+| Value | When it triggers |
+|-------|-----------------|
+| `top 85%` | Element near viewport bottom (default) |
+| `top center` | Element at viewport center |
+| `top 70%` | Element at 70% down the viewport |
+| `top top` | Element at the very top of viewport |
+| `center center` | Element centered in viewport |
+
 ### Shared trigger for siblings
 
 Siblings with the same `-st` class share their parent as the scroll trigger:

@@ -18,6 +18,7 @@ Uses bracket syntax (inspired by Tailwind CSS arbitrary values) so decimal value
 | `fx-delay-[n]` | `0` | Number (seconds) | Wait before starting |
 | `fx-stagger-[n]` | `0.1` | Number (seconds) | Delay between staggered siblings |
 | `fx-ease-[name]` | `power3.out` | String | GSAP easing function |
+| `fx-start-[pos]` | `top 85%` | String | ScrollTrigger start position (scroll-triggered only) |
 
 ## Duration
 
@@ -101,6 +102,41 @@ Change the animation's easing curve. Uses [GSAP easing names](https://gsap.com/d
 | `elastic.out(1,0.3)` | Spring/elastic feel |
 | `bounce.out` | Bouncing ball effect |
 | `none` | Linear, constant speed |
+
+## Start Position
+
+Control when the scroll-triggered animation fires. Uses GSAP's ScrollTrigger `start` format: `"triggerPosition viewportPosition"`.
+
+```html
+<!-- Trigger when element reaches center of viewport -->
+<h2 class="fx-text-reveal-st fx-start-[top center]">Center trigger</h2>
+
+<!-- Trigger earlier (90% down = near bottom) -->
+<img class="fx-reveal-st fx-start-[top 90%]" src="photo.jpg" />
+
+<!-- Trigger very late (at the top edge of viewport) -->
+<div class="fx-scale-in-st fx-start-[top top]">Top trigger</div>
+```
+
+**Common values:**
+
+| Value | Meaning |
+|-------|---------|
+| `top 85%` | Default — element near bottom of viewport |
+| `top center` | Element at viewport center |
+| `top 70%` | Element at 70% down |
+| `top top` | Element at the very top |
+| `center center` | Element vertically centered |
+
+**Note:** Only applies to scroll-triggered animations (`-st`, bare classes, tagMap). Has no effect on `-pl` (page load) animations.
+
+To change the default for **all** elements globally, use config instead:
+
+```html
+<script>
+window.__FX_CONFIG__ = { scrollStart: 'top center' };
+</script>
+```
 
 ## Combining Modifiers
 

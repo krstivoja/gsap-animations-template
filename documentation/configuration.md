@@ -7,6 +7,8 @@ FX has two global config options that control section-based triggering and autom
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `sectionSelector` | String | `'section'` | CSS selector for containers that enable bare-class and tagMap auto-triggering |
+| `scrollStart` | String | `'top 85%'` | Default ScrollTrigger start position for all scroll-triggered animations |
+| `scrollOnce` | Boolean | `true` | Whether scroll animations play once or replay every time the element enters the viewport |
 | `tagMap` | Object or null | `null` | Map of CSS selectors to effect names for zero-class animation |
 
 ## Setting Configuration
@@ -67,6 +69,70 @@ window.__FX_CONFIG__ = {
 ```
 
 With this, only explicit `-pl` and `-st` classes are recognized.
+
+---
+
+## scrollStart
+
+Controls **where** scroll-triggered animations fire. Uses GSAP's ScrollTrigger `start` format: `"triggerPosition viewportPosition"`.
+
+### Default
+
+```js
+scrollStart: 'top 85%'
+```
+
+This means: animate when the **top** of the trigger element reaches **85% down** from the top of the viewport (near the bottom of the screen).
+
+### Changing the default
+
+```html
+<script>
+window.__FX_CONFIG__ = {
+    scrollStart: 'top center'   // trigger at viewport center
+};
+</script>
+```
+
+### Common values
+
+| Value | When it triggers |
+|-------|-----------------|
+| `'top 85%'` | Element near bottom of viewport (default, earliest) |
+| `'top 70%'` | Element at 70% down |
+| `'top center'` | Element at viewport center |
+| `'top top'` | Element at very top of viewport (latest) |
+| `'center center'` | Element vertically centered in viewport |
+
+### Per-element override
+
+Use the `fx-start-[]` modifier class to override on a specific element:
+
+```html
+<h2 class="fx-text-reveal-st fx-start-[top center]">Custom trigger point</h2>
+```
+
+---
+
+## scrollOnce
+
+Controls whether scroll-triggered animations replay when the element re-enters the viewport.
+
+### Default
+
+```js
+scrollOnce: true   // play once, never replay
+```
+
+### Replaying animations
+
+```html
+<script>
+window.__FX_CONFIG__ = {
+    scrollOnce: false   // replay every time the element enters the viewport
+};
+</script>
+```
 
 ---
 

@@ -48,6 +48,20 @@
         sectionSelector: 'section',
 
         /**
+         * Default ScrollTrigger start position.
+         * Format: "triggerPosition viewportPosition"
+         * Examples: 'top 85%', 'top center', 'top 90%', 'center center'
+         * See: https://gsap.com/docs/v3/Plugins/ScrollTrigger/
+         */
+        scrollStart: 'top 85%',
+
+        /**
+         * Whether scroll-triggered animations play only once.
+         * Set to false to replay every time the element enters the viewport.
+         */
+        scrollOnce: true,
+
+        /**
          * Map of CSS selectors → effect names for zero-class auto-animation.
          * Elements matching these selectors inside sections get animated automatically.
          * Set to null/false to disable. Override before DOMContentLoaded or call FX.init().
@@ -63,8 +77,6 @@
     };
 
     // ── Defaults ────────────────────────────────
-
-    var SCROLL_DEFAULTS = { start: 'top 85%', once: true };
 
     var EFFECT_DEFAULTS = {
         textReveal:  { duration: 1.2, ease: 'power3.out', stagger: 0.1 },
@@ -100,9 +112,18 @@
     }
 
     function buildScrollTrigger(el, scrollTriggerOpts) {
+        var defaults = {
+            start: config.scrollStart,
+            once: config.scrollOnce,
+        };
         var st = { trigger: scrollTriggerOpts.trigger || el };
-        for (var key in SCROLL_DEFAULTS) st[key] = SCROLL_DEFAULTS[key];
+        for (var key in defaults) st[key] = defaults[key];
         for (var key2 in scrollTriggerOpts) st[key2] = scrollTriggerOpts[key2];
+
+        // Per-element override: fx-start-[top center] or fx-start-[top 70%]
+        var startOverride = getClassModifier(el, 'start', null);
+        if (startOverride !== null) st.start = startOverride;
+
         return st;
     }
 
@@ -335,6 +356,8 @@
         var pre = window.__FX_CONFIG__;
         if (!pre) return;
         if (pre.sectionSelector !== undefined) config.sectionSelector = pre.sectionSelector;
+        if (pre.scrollStart !== undefined) config.scrollStart = pre.scrollStart;
+        if (pre.scrollOnce !== undefined) config.scrollOnce = pre.scrollOnce;
         if (pre.tagMap !== undefined) config.tagMap = pre.tagMap;
     }
 

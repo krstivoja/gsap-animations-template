@@ -14,7 +14,7 @@ When `fx.js` loads, it creates a `window.FX` object with these methods:
 | `FX.bgReveal(el, opts)` | Background slide up |
 | `FX.scaleIn(el, opts)` | Scale up with fade |
 | `FX.init()` | Re-scan DOM and apply animations |
-| `FX.config` | Global config object |
+| `FX.config` | Global config object (`sectionSelector`, `scrollStart`, `scrollOnce`, `tagMap`) |
 
 ## Basic Usage
 
