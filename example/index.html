@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX Animation SDK — Examples</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #f0f0f0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ── Hero (page-load animations) ── */
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            z-index: 0;
+        }
+
+        .hero .container { position: relative; z-index: 1; }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #a0a0b0;
+            max-width: 540px;
+            margin-bottom: 32px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e94560;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 24px;
+        }
+
+        /* ── Sections (scroll-triggered) ── */
+
+        section {
+            padding: 120px 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #e94560;
+            margin-bottom: 12px;
+        }
+
+        section h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        section p {
+            font-size: 1.1rem;
+            color: #a0a0b0;
+            max-width: 640px;
+        }
+
+        /* ── Image grid ── */
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .image-grid img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+        }
+
+        /* ── Card ── */
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 48px;
+            margin-top: 48px;
+            text-align: center;
+        }
+
+        .glass-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .glass-card p { margin: 0 auto; }
+
+        /* ── Custom timing override demo ── */
+
+        /* No extra CSS needed — overrides use modifier classes like fx-duration-[2] */
+
+        /* ── Footer spacer ── */
+
+        footer {
+            padding: 80px 0;
+            text-align: center;
+            color: #555;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════
+         HERO — Page-load animations (-pl)
+         ═══════════════════════════════════════════ -->
+
+    <div class="hero">
+        <div class="hero-bg fx-bg-reveal-pl"></div>
+        <div class="container">
+            <div class="badge fx-spin-reveal-pl">New SDK</div>
+            <h1 class="fx-text-reveal-pl">Animation made<br>ridiculously simple.</h1>
+            <p class="fx-text-reveal-pl">Add a class. Get an animation. No JavaScript needed per page. Built on GSAP for buttery-smooth 60fps motion.</p>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════
+         TEXT REVEAL — Scroll triggered (-st)
+         ═══════════════════════════════════════════ -->
+
+    <section>
+        <div class="container">
+            <p class="section-label fx-reveal-st">Text Reveal</p>
+            <h2 class="fx-text-reveal-st">Each line reveals with a mask,<br>sliding up one by one.</h2>
+            <p class="fx-text-reveal-st">Just add <code>.fx-text-reveal-st</code> to any text element. The SDK splits it into lines, wraps each in an overflow-hidden mask, and animates them in sequence.</p>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         IMAGE REVEAL — Scroll triggered
+         ═══════════════════════════════════════════ -->
+
+    <section>
+        <div class="container">
+            <p class="section-label fx-reveal-st">Image Reveal</p>
+            <h2 class="fx-text-reveal-st">Images slide up with a fade.</h2>
+            <p class="fx-text-reveal-st">Siblings with the same class get auto-staggered.</p>
+
+            <div class="image-grid">
+                <img src="https://picsum.photos/seed/fx1/600/450" alt="Demo" class="fx-reveal-st" />
+                <img src="https://picsum.photos/seed/fx2/600/450" alt="Demo" class="fx-reveal-st" />
+                <img src="https://picsum.photos/seed/fx3/600/450" alt="Demo" class="fx-reveal-st" />
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         SPIN REVEAL — Scroll triggered
+         ═══════════════════════════════════════════ -->
+
+    <section>
+        <div class="container">
+            <p class="section-label fx-reveal-st">Spin Reveal</p>
+            <h2 class="fx-text-reveal-st">Rotate and scale in for flair.</h2>
+
+            <div style="display: flex; gap: 16px; margin-top: 32px;">
+                <div class="badge fx-spin-reveal-st">Design</div>
+                <div class="badge fx-spin-reveal-st">Motion</div>
+                <div class="badge fx-spin-reveal-st">Code</div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         SCALE IN — Glass card on scroll
+         ═══════════════════════════════════════════ -->
+
+    <section>
+        <div class="container">
+            <p class="section-label fx-reveal-st">Scale In</p>
+            <h2 class="fx-text-reveal-st">Glass cards scale up smoothly.</h2>
+
+            <div class="glass-card fx-scale-in-st">
+                <h3 class="fx-text-reveal-st">Ready to try it?</h3>
+                <p class="fx-text-reveal-st">Drop <code>fx.js</code> into your project and start adding classes.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         CSS CUSTOM PROPERTIES OVERRIDE
+         ═══════════════════════════════════════════ -->
+
+    <section>
+        <div class="container">
+            <p class="section-label fx-reveal-st">Custom Timing</p>
+            <h2 class="fx-text-reveal-st fx-duration-[2] fx-stagger-[0.25]">Override duration and stagger<br>with modifier classes.</h2>
+            <p class="fx-text-reveal-st">This heading uses <code>fx-duration-[2]</code> and <code>fx-stagger-[0.25]</code> for a slower, more dramatic feel.</p>
+        </div>
+    </section>
+
+
+    <footer>
+        FX Animation SDK &mdash; Built on GSAP
+    </footer>
+
+
+    <!-- ── Scripts ── -->
+    <!-- SDK bundle (GSAP + ScrollTrigger + SplitText + FX) — handles all class-based animations -->
+    <script src="../dist/fx.js"></script>
+    <!-- Project-specific animations (optional — only needed for custom compound sequences) -->
+    <!-- <script src="dist/animations.js"></script> -->
+
+</body>
+</html>
