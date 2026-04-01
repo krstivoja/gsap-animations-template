@@ -46,6 +46,22 @@ Load in this order:
 | Spin Reveal | `fx-spin-reveal` | `FX.spinReveal()` | Rotation:-30 + scale:0.9 + fade | 1.4s | power3.out |
 | BG Reveal | `fx-bg-reveal` | `FX.bgReveal()` | Slide up from y:100% + fade | 1s | power3.out |
 | Scale In | `fx-scale-in` | `FX.scaleIn()` | Scale from 0.92 + fade | 1s | power3.out |
+| Fade In | `fx-fade-in` | `FX.fadeIn()` | Opacity only, no movement | 0.8s | power2.out |
+| Blur In | `fx-blur-in` | `FX.blurIn()` | Fade in + deblur (camera focus effect) | 1.2s | power2.out |
+| Clip Up | `fx-clip-up` | `FX.clipUp()` | Clip-path wipe from bottom | 1s | power3.inOut |
+| Clip Down | `fx-clip-down` | `FX.clipDown()` | Clip-path wipe from top | 1s | power3.inOut |
+
+## Stagger Children Modifier
+
+`fx-stagger-all-[selector]` targets child elements by CSS selector. Must be paired with an effect class.
+
+```html
+<div class="fx-stagger-all-[img] fx-reveal-st">       <!-- stagger images with reveal -->
+<div class="fx-stagger-all-[h2,p] fx-text-reveal-st"> <!-- stagger text elements -->
+<div class="fx-stagger-all-[.card] fx-blur-in-st">    <!-- stagger by class -->
+```
+
+Without an effect class, `fx-stagger-all` does nothing.
 
 ## Three Trigger Modes
 

@@ -1,6 +1,6 @@
 # Effects Reference
 
-FX ships with 5 animation effects. Each can be triggered on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class).
+FX ships with 9 animation effects. Each can be triggered on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class).
 
 ## Quick Reference Table
 
@@ -11,6 +11,10 @@ FX ships with 5 animation effects. Each can be triggered on page load (`-pl`), o
 | Spin Reveal | `fx-spin-reveal` | `FX.spinReveal()` | Rotate and scale in |
 | BG Reveal | `fx-bg-reveal` | `FX.bgReveal()` | Background container slide up |
 | Scale In | `fx-scale-in` | `FX.scaleIn()` | Scale up from smaller size with fade |
+| Fade In | `fx-fade-in` | `FX.fadeIn()` | Opacity only, no movement |
+| Blur In | `fx-blur-in` | `FX.blurIn()` | Fade in while deblurring |
+| Clip Up | `fx-clip-up` | `FX.clipUp()` | Clip-path wipe revealing from bottom |
+| Clip Down | `fx-clip-down` | `FX.clipDown()` | Clip-path wipe revealing from top |
 
 ---
 
@@ -203,6 +207,143 @@ FX.scaleIn(el, { scale: 0.85 }); // More dramatic scale
 
 ---
 
+## Fade In
+
+Pure opacity fade — no movement, no transform. The most subtle reveal.
+
+**Class:** `fx-fade-in-pl` | `fx-fade-in-st` | `fx-fade-in`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `0.8s` |
+| Ease | `power2.out` |
+| From Opacity | `0` |
+
+**Usage:**
+
+```html
+<div class="overlay fx-fade-in-pl"></div>
+<img src="bg.jpg" class="fx-fade-in-st" />
+```
+
+**Best for:** Backgrounds, overlays, decorative elements that shouldn't draw attention with movement.
+
+---
+
+## Blur In
+
+Fades in while deblurring — like a camera coming into focus.
+
+**Class:** `fx-blur-in-pl` | `fx-blur-in-st` | `fx-blur-in`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `1.2s` |
+| Ease | `power2.out` |
+| From Blur | `12px` |
+| From Opacity | `0` |
+
+**Usage:**
+
+```html
+<h1 class="fx-blur-in-pl">Hero headline</h1>
+<img src="feature.jpg" class="fx-blur-in-st" />
+```
+
+**Best for:** Images, headings, hero text — organic and cinematic feel.
+
+**JS override:** Control blur amount:
+```js
+FX.blurIn(el, { blur: 20 }); // Heavier blur
+```
+
+---
+
+## Clip Up
+
+Reveals the element with a clip-path wipe from the bottom edge upward. Clean geometric reveal with no movement or opacity change.
+
+**Class:** `fx-clip-up-pl` | `fx-clip-up-st` | `fx-clip-up`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `1s` |
+| Ease | `power3.inOut` |
+| From clipPath | `inset(100% 0 0 0)` |
+
+**Usage:**
+
+```html
+<img src="photo.jpg" class="fx-clip-up-st" />
+<div class="hero-image fx-clip-up-pl"></div>
+```
+
+**Best for:** Images, sections — premium architectural feel.
+
+---
+
+## Clip Down
+
+Same as Clip Up but reveals from the top edge downward.
+
+**Class:** `fx-clip-down-pl` | `fx-clip-down-st` | `fx-clip-down`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `1s` |
+| Ease | `power3.inOut` |
+| From clipPath | `inset(0 0 100% 0)` |
+
+**Usage:**
+
+```html
+<div class="dropdown-panel fx-clip-down-st">Content</div>
+```
+
+**Best for:** Dropdown panels, top-aligned reveals.
+
+---
+
+## Stagger Children
+
+`fx-stagger-all-[selector]` is a trigger modifier that targets child elements by CSS selector. It must be paired with an effect class — without one, nothing happens.
+
+**Usage:**
+
+```html
+<!-- Stagger all images with reveal -->
+<div class="fx-stagger-all-[img] fx-reveal-st">
+    <img src="1.jpg" />
+    <img src="2.jpg" />
+    <img src="3.jpg" />
+</div>
+
+<!-- Stagger headings and paragraphs with text reveal -->
+<div class="fx-stagger-all-[h2,p] fx-text-reveal-st">
+    <h2>Title</h2>
+    <p>Description</p>
+</div>
+
+<!-- Stagger by CSS class with blur effect -->
+<div class="fx-stagger-all-[.card] fx-blur-in-st">
+    <div class="card">A</div>
+    <div class="card">B</div>
+    <div class="card">C</div>
+</div>
+```
+
+**Best for:** Card grids, image galleries, feature lists — no need to add classes to every child element.
+
+---
+
 ## All Defaults at a Glance
 
 | Effect | Duration | Ease | Stagger | Unique Props |
@@ -212,5 +353,9 @@ FX.scaleIn(el, { scale: 0.85 }); // More dramatic scale
 | spinReveal | 1.4s | power3.out | — | rotation: -30, scale: 0.9 |
 | bgReveal | 1s | power3.out | — | y: 100% |
 | scaleIn | 1s | power3.out | — | scale: 0.92 |
+| fadeIn | 0.8s | power2.out | — | opacity only |
+| blurIn | 1.2s | power2.out | — | filter: blur(12px) |
+| clipUp | 1s | power3.inOut | — | clipPath: inset(100% 0 0 0) |
+| clipDown | 1s | power3.inOut | — | clipPath: inset(0 0 100% 0) |
 
-All effects animate `opacity` from `0` to `1`.
+All effects except clipUp/clipDown animate `opacity` from `0` to `1`.

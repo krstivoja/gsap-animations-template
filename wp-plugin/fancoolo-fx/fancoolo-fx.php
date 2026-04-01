@@ -3,7 +3,7 @@
  * Plugin Name: Fancoolo FX
  * Plugin URI: https://github.com/krstivoja/fancoolo-fx
  * Description: A class-driven GSAP animation wrapper. Add CSS classes in Gutenberg and get animations — no JavaScript needed.
- * Version: 1.0.2
+ * Version: 1.1.0
  * Author: Fancoolo
  * Author URI: https://github.com/krstivoja
  * License: ISC
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FANCOOLO_FX_VERSION', '1.0.2' );
+define( 'FANCOOLO_FX_VERSION', '1.1.0' );
 define( 'FANCOOLO_FX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FANCOOLO_FX_URL', plugin_dir_url( __FILE__ ) );
 
@@ -345,6 +345,33 @@ FX.init();</pre>
 			<div class="ffx-class-row"><code data-copy>fx-scale-in-pl</code><span class="ffx-desc">Page load — scale up with fade</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-scale-in-st</code><span class="ffx-desc">Scroll triggered</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-scale-in</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Fade In -->
+			<div class="ffx-group-title">Fade In</div>
+			<div class="ffx-class-row"><code data-copy>fx-fade-in-pl</code><span class="ffx-desc">Page load — opacity only, no movement</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-fade-in-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-fade-in</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Blur In -->
+			<div class="ffx-group-title">Blur In</div>
+			<div class="ffx-class-row"><code data-copy>fx-blur-in-pl</code><span class="ffx-desc">Page load — fade in while deblurring</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-blur-in-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-blur-in</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Clip Up -->
+			<div class="ffx-group-title">Clip Reveal</div>
+			<div class="ffx-class-row"><code data-copy>fx-clip-up-pl</code><span class="ffx-desc">Page load — clip-path wipe from bottom</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-clip-up-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-clip-up</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-clip-down-pl</code><span class="ffx-desc">Page load — clip-path wipe from top</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-clip-down-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-clip-down</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Stagger All -->
+			<div class="ffx-group-title" style="margin-top: 20px;">Stagger Children <span style="font-weight:normal;color:#646970;font-size:12px;">(pair with an effect class)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-stagger-all-[img]</code><span class="ffx-desc">Target all img children — requires effect class</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-stagger-all-[img,p]</code><span class="ffx-desc">Target img and p children</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-stagger-all-[.card]</code><span class="ffx-desc">Target children by CSS class</span></div>
 
 			<!-- Modifiers -->
 			<div class="ffx-group-title" style="margin-top: 20px;">Modifiers <span style="font-weight:normal;color:#646970;font-size:12px;">(combine with any effect class)</span></div>

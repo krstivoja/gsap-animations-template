@@ -84,6 +84,10 @@
         spinReveal:  { duration: 1.4, ease: 'power3.out' },
         bgReveal:    { duration: 1,   ease: 'power3.out' },
         scaleIn:     { duration: 1,   ease: 'power3.out' },
+        fadeIn:      { duration: 0.8, ease: 'power2.out' },
+        blurIn:      { duration: 1.2, ease: 'power2.out' },
+        clipUp:      { duration: 1,   ease: 'power3.inOut' },
+        clipDown:    { duration: 1,   ease: 'power3.inOut' },
     };
 
     // ── Helpers ──────────────────────────────────
@@ -241,6 +245,79 @@
         gsap.from(el, tweenVars);
     }
 
+    function fadeIn(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'fadeIn', opts);
+
+        var tweenVars = {
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    function blurIn(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'blurIn', opts);
+
+        var tweenVars = {
+            filter: 'blur(' + (opts.blur != null ? opts.blur : 12) + 'px)',
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    function clipUp(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'clipUp', opts);
+
+        var tweenVars = {
+            clipPath: 'inset(100% 0 0 0)',
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    function clipDown(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'clipDown', opts);
+
+        var tweenVars = {
+            clipPath: 'inset(0 0 100% 0)',
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
     // ── Class-to-effect mapping ─────────────────
 
     var effects = {
@@ -249,6 +326,10 @@
         'fx-spin-reveal': spinReveal,
         'fx-bg-reveal':   bgReveal,
         'fx-scale-in':    scaleIn,
+        'fx-fade-in':     fadeIn,
+        'fx-blur-in':     blurIn,
+        'fx-clip-up':     clipUp,
+        'fx-clip-down':   clipDown,
     };
 
     var effectsByName = {
@@ -257,6 +338,10 @@
         spinReveal: spinReveal,
         bgReveal: bgReveal,
         scaleIn: scaleIn,
+        fadeIn: fadeIn,
+        blurIn: blurIn,
+        clipUp: clipUp,
+        clipDown: clipDown,
     };
 
     // ── Helpers ──────────────────────────────────
@@ -366,6 +451,51 @@
         }
     }
 
+        // 5. fx-stagger-all-[selector] — target children, effect from sibling class
+        //    Requires an effect class on the same element (e.g. fx-reveal-st).
+        document.querySelectorAll('[class*="fx-stagger-all-"]').forEach(function (container) {
+            // Parse selector from fx-stagger-all-[img,p]
+            var childSelector = null;
+            for (var ci = 0; ci < container.classList.length; ci++) {
+                var cls = container.classList[ci];
+                if (cls.indexOf('fx-stagger-all-[') === 0 && cls.charAt(cls.length - 1) === ']') {
+                    childSelector = cls.slice('fx-stagger-all-['.length, -1);
+                    break;
+                }
+            }
+            if (!childSelector) return;
+
+            // Find which effect class is on this container
+            var effectFn = null;
+            var effectName = null;
+            Object.keys(effects).forEach(function (name) {
+                if (container.classList.contains(name + '-st') ||
+                    container.classList.contains(name + '-pl') ||
+                    container.classList.contains(name)) {
+                    effectFn = effects[name];
+                    effectName = name;
+                }
+            });
+            if (!effectFn) return; // No effect class paired — do nothing
+
+            var isScroll = container.classList.contains(effectName + '-st') ||
+                           container.classList.contains(effectName);
+            var children = Array.from(container.querySelectorAll(childSelector))
+                .filter(function (el) { return !processed.has(el); });
+            if (children.length === 0) return;
+
+            children.forEach(function (child, i) {
+                var opts = { delay: i * 0.15 };
+                if (isScroll) {
+                    opts.trigger = 'scroll';
+                    opts.scrollTrigger = { trigger: child };
+                }
+                effectFn(child, opts);
+                processed.add(child);
+            });
+        });
+    }
+
     // ── Boot ────────────────────────────────────
 
     function applyPreConfig() {
@@ -397,6 +527,10 @@
         spinReveal: spinReveal,
         bgReveal: bgReveal,
         scaleIn: scaleIn,
+        fadeIn: fadeIn,
+        blurIn: blurIn,
+        clipUp: clipUp,
+        clipDown: clipDown,
         init: init,
     };
 })();
