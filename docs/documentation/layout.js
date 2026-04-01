@@ -109,7 +109,7 @@
 
         // Main
         '<main class="flex-1 min-w-0"><div class="px-6 lg:px-12 py-10 max-w-3xl">' +
-        '<div id="doc-content" class="prose prose-gray prose-lg max-w-none prose-headings:font-extrabold prose-headings:tracking-tight prose-h1:text-3xl prose-h1:border-b prose-h1:border-gray-200/60 prose-h1:pb-4 prose-h1:mb-6 prose-h2:text-xl prose-h2:mt-10 prose-h3:text-lg prose-a:no-underline hover:prose-a:underline prose-code:before:content-[\\'\\'] prose-code:after:content-[\\'\\']">' +
+        '<div id="doc-content" class="doc-prose prose prose-gray prose-lg max-w-none">' +
         '<p class="text-gray-400">Loading...</p></div>' +
         '<div id="pagination"></div>' +
         '</div></main></div>' +
