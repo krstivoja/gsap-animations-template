@@ -35,7 +35,7 @@ function my_theme_enqueue_animations() {
         true
     );
 
-    // 4. FX SDK
+    // 4. Fancoolo FX
     wp_enqueue_script(
         'fx-sdk',
         get_template_directory_uri() . '/assets/js/fx.js',

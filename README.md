@@ -1,6 +1,6 @@
-# @fancoolo/fx — Animation SDK
+# @fancoolo/fx — Fancoolo FX
 
-A lightweight, class-driven GSAP animation SDK. Add a CSS class to any element and it animates — no JavaScript needed per page.
+A class-driven GSAP animation wrapper for WordPress and static sites. Add a CSS class to any element and it animates — no JavaScript needed per page.
 
 ## Install
 
@@ -18,11 +18,11 @@ Load GSAP + plugins + FX as separate script tags — no build step needed:
 <!-- 2. GSAP plugins -->
 <script src="node_modules/gsap/dist/ScrollTrigger.min.js"></script>
 <script src="node_modules/gsap/dist/SplitText.min.js"></script>
-<!-- 3. FX Animation SDK -->
+<!-- 3. Fancoolo FX -->
 <script src="src/fx.js"></script>
 ```
 
-Then add classes in your HTML. Done. The SDK auto-initializes on DOMContentLoaded.
+Then add classes in your HTML. Done. FX auto-initializes on DOMContentLoaded.
 
 ## Quick Start
 
@@ -49,7 +49,7 @@ The heading animates with a masked line-reveal on page load.
 
 ## How Scroll Triggering Works
 
-When the SDK sees a scroll-triggered element (`-st` suffix or bare class inside a section), it creates a GSAP ScrollTrigger with these defaults:
+When FX sees a scroll-triggered element (`-st` suffix or bare class inside a section), it creates a GSAP ScrollTrigger with these defaults:
 
 - **`start: 'top 85%'`** — the animation fires when the top of the element (or its section) reaches 85% down from the top of the viewport
 - **`once: true`** — plays once, doesn't replay on re-scroll
@@ -80,7 +80,7 @@ FX.config.sectionSelector = 'section, .wp-block-group';  // multiple selectors
 For zero-class animation, configure `tagMap` to automatically animate elements by their tag name inside sections:
 
 ```html
-<!-- Set config BEFORE the SDK script loads -->
+<!-- Set config BEFORE the FX script loads -->
 <script>
     window.__FX_CONFIG__ = {
         tagMap: {
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
 ```
 ├── package.json                ← npm deps (gsap)
 ├── node_modules/gsap/dist/     ← GSAP core + plugins (loaded via script tags)
-├── src/fx.js                   ← FX Animation SDK
+├── src/fx.js                   ← Fancoolo FX
 ├── example/
 │   ├── index.html              ← Demo page
 │   └── src/animations.js       ← Sample project-specific code
@@ -193,4 +193,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 ## WordPress / Gutenberg
 
-This SDK uses CSS classes which you can add via the "Additional CSS class(es)" field in the block sidebar. No data attributes or inline styles needed.
+Fancoolo FX uses CSS classes which you can add via the "Additional CSS class(es)" field in the block sidebar. No data attributes or inline styles needed.

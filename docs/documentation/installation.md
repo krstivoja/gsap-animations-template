@@ -28,7 +28,7 @@ Load the scripts in this exact order — GSAP core first, then plugins, then FX:
 <script src="node_modules/gsap/dist/ScrollTrigger.min.js"></script>
 <script src="node_modules/gsap/dist/SplitText.min.js"></script>
 
-<!-- 3. FX Animation SDK -->
+<!-- 3. Fancoolo FX -->
 <script src="src/fx.js"></script>
 ```
 

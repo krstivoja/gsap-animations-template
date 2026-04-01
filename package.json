@@ -1,7 +1,7 @@
 {
   "name": "@fancoolo/fx",
   "version": "1.0.0",
-  "description": "A lightweight, class-driven GSAP animation SDK.",
+  "description": "A class-driven GSAP animation wrapper for WordPress and static sites.",
   "main": "src/fx.js",
   "keywords": ["gsap", "animation", "scrolltrigger", "splittext", "wordpress", "gutenberg"],
   "author": "",

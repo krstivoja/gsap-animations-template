@@ -1,5 +1,5 @@
 /**
- * FX — Lightweight GSAP Animation SDK
+ * Fancoolo FX — A class-driven GSAP animation wrapper
  *
  * Load GSAP + plugins BEFORE this file:
  *   <script src="node_modules/gsap/dist/gsap.min.js"></script>

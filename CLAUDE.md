@@ -1,11 +1,11 @@
-# @fancoolo/fx — GSAP Animation SDK
+# @fancoolo/fx — Fancoolo FX
 
 ## What this is
-A class-driven GSAP animation framework. Users add CSS classes to HTML elements and get animations — no JS needed per page. Built for WordPress/Gutenberg where only class names (not data attributes or inline styles) can be added to blocks.
+A class-driven GSAP animation wrapper for WordPress and static sites. Users add CSS classes to HTML elements and get animations — no JS needed per page. Built for WordPress/Gutenberg where only class names (not data attributes or inline styles) can be added to blocks.
 
 ## Architecture
 
-### SDK (`src/fx.js`)
+### Core (`src/fx.js`)
 - Plain IIFE — no ES imports, no build step, no bundling
 - Expects gsap, ScrollTrigger, SplitText loaded as globals via script tags before it
 - Registers plugins, defines 5 effects, auto-scans DOM for `.fx-*` classes on DOMContentLoaded
@@ -34,7 +34,7 @@ A class-driven GSAP animation framework. Users add CSS classes to HTML elements 
 - `tagMap` (default: `null`) — map of CSS selectors → effect names for zero-class animation
 
 ### Pre-configuration
-Set `window.__FX_CONFIG__` before the SDK script loads to configure `sectionSelector` and `tagMap` without needing JS after load.
+Set `window.__FX_CONFIG__` before the FX script loads to configure `sectionSelector` and `tagMap` without needing JS after load.
 
 ### Auto-stagger
 Elements with the same `.fx-*` class grouped under the same parent are staggered automatically (0.15s gap).
@@ -45,7 +45,7 @@ init() uses a `processed` Set to avoid double-animating: explicit `-pl`/`-st` fi
 ## Example project (`example/`)
 - `example/index.html` — demo page showing all effects
 - `example/src/animations.js` — sample project-specific code (ICAP site orchestration)
-- Uses `file:..` dependency to reference the SDK locally
+- Uses `file:..` dependency to reference FX locally
 
 ## No build step
 No bundler, no compilation. GSAP + plugins are loaded as separate script tags from `node_modules/gsap/dist/`, then `src/fx.js` runs as a plain IIFE.
