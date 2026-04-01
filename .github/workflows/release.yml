@@ -3,7 +3,7 @@ name: Release WordPress Plugin
 on:
   push:
     tags:
-      - 'v*'
+      - '[0-9]*'
 
 permissions:
   contents: write
