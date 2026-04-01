@@ -5,38 +5,24 @@ A lightweight, class-driven GSAP animation SDK. Add a CSS class to any element a
 ## Install
 
 ```bash
-npm install @fancoolo/fx
-```
-
-## Build (for SDK development)
-
-```bash
-npm run build         # Minified → dist/fx.min.js
-npm run build:esm     # ESM bundle → dist/fx.esm.min.js
-npm run build:all     # Both formats
-npm run build:dev     # Unminified + sourcemaps
-npm run watch         # Rebuild on changes
+npm install
 ```
 
 ## Usage
 
-### Option A: Script tag (WordPress, static sites)
-
-Load the single bundled file — includes GSAP + ScrollTrigger + SplitText + FX:
+Load GSAP + plugins + FX as separate script tags — no build step needed:
 
 ```html
-<script src="node_modules/@fancoolo/fx/dist/fx.min.js"></script>
+<!-- 1. GSAP core -->
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<!-- 2. GSAP plugins -->
+<script src="node_modules/gsap/dist/ScrollTrigger.min.js"></script>
+<script src="node_modules/gsap/dist/SplitText.min.js"></script>
+<!-- 3. FX Animation SDK -->
+<script src="src/fx.js"></script>
 ```
 
-Then add classes in your HTML. Done.
-
-### Option B: ES module import (bundled projects)
-
-```js
-import { textReveal, reveal, spinReveal, bgReveal, scaleIn } from '@fancoolo/fx';
-```
-
-The SDK auto-initializes on DOMContentLoaded — any `.fx-*` classes in the DOM are picked up automatically. Use the JS API for compound sequences or dynamic content.
+Then add classes in your HTML. Done. The SDK auto-initializes on DOMContentLoaded.
 
 ## Quick Start
 
@@ -149,14 +135,10 @@ Add these in Gutenberg via the "Additional CSS class(es)" field alongside the ef
 
 ## JavaScript API
 
-For compound sequences or dynamic content, use named exports or the `FX` global:
+For compound sequences or dynamic content, use the `FX` global:
 
 ```js
-import { textReveal, reveal } from '@fancoolo/fx';
-
-// Or via global: FX.textReveal(el, opts)
-
-textReveal(document.querySelector('.hero-title'), {
+FX.textReveal(document.querySelector('.hero-title'), {
     trigger: 'scroll',
     delay: 0.3,
     scrollTrigger: { trigger: '.hero-section' }
@@ -177,44 +159,36 @@ All functions accept `(element, options)`:
 
 Set `trigger: 'scroll'` to enable ScrollTrigger. Pass `scrollTrigger: { trigger: someEl }` to use a different trigger element.
 
-## Using in a new project
+## Using in a New Project
 
-```bash
-npm install @fancoolo/fx
-```
+1. Copy this repo (or `npm install`)
+2. Add the 4 script tags (gsap, ScrollTrigger, SplitText, fx.js)
+3. Add `.fx-*` classes in your HTML
 
-Create your project-specific animation file:
+For compound sequences, create a project-specific JS file loaded after fx.js:
 
 ```js
-// src/animations.js
-import { textReveal, reveal, scaleIn } from '@fancoolo/fx';
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Custom compound sequences go here
-    const hero = document.querySelector('.hero');
+// animations.js — loaded after fx.js
+document.addEventListener('DOMContentLoaded', function () {
+    var hero = document.querySelector('.hero');
     if (hero) {
-        scaleIn(hero.querySelector('.card'), { trigger: 'scroll', scrollTrigger: { trigger: hero } });
-        textReveal(hero.querySelector('h2'), { trigger: 'scroll', delay: 0.2, scrollTrigger: { trigger: hero } });
+        FX.scaleIn(hero.querySelector('.card'), { trigger: 'scroll', scrollTrigger: { trigger: hero } });
+        FX.textReveal(hero.querySelector('h2'), { trigger: 'scroll', delay: 0.2, scrollTrigger: { trigger: hero } });
     }
 });
 ```
 
-Most animations need zero JS — just add classes in your HTML/Gutenberg.
-
 ## File Structure
 
 ```
-@fancoolo/fx (this package)
-├── src/fx.js              ← SDK source
-├── dist/fx.min.js         ← IIFE bundle (script tag)
-├── dist/fx.esm.min.js     ← ESM bundle (import)
+├── package.json                ← npm deps (gsap)
+├── node_modules/gsap/dist/     ← GSAP core + plugins (loaded via script tags)
+├── src/fx.js                   ← FX Animation SDK
+├── example/
+│   ├── index.html              ← Demo page
+│   └── src/animations.js       ← Sample project-specific code
+├── CLAUDE.md                   ← Project context for Claude
 └── README.md
-
-Your project
-├── package.json            ← depends on @fancoolo/fx
-├── src/animations.js       ← Your project-specific sequences
-├── dist/                   ← Your built bundle
-└── *.html / templates      ← Add .fx-* classes here
 ```
 
 ## WordPress / Gutenberg

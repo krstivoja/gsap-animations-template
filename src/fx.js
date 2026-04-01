@@ -1,6 +1,12 @@
 /**
  * FX — Lightweight GSAP Animation SDK
  *
+ * Load GSAP + plugins BEFORE this file:
+ *   <script src="node_modules/gsap/dist/gsap.min.js"></script>
+ *   <script src="node_modules/gsap/dist/ScrollTrigger.min.js"></script>
+ *   <script src="node_modules/gsap/dist/SplitText.min.js"></script>
+ *   <script src="src/fx.js"></script>
+ *
  * Three ways to trigger animations:
  *
  *   1. Explicit classes with trigger suffix:
@@ -21,351 +27,337 @@
  * JS API:
  *   FX.textReveal(el, { trigger: 'scroll', delay: 0.2 })
  */
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
+(function () {
+    'use strict';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+    if (typeof gsap === 'undefined' || typeof SplitText === 'undefined' || typeof ScrollTrigger === 'undefined') {
+        console.error('[FX] Missing dependencies. Load gsap, ScrollTrigger, and SplitText before fx.js');
+        return;
+    }
 
-// ── Config ──────────────────────────────────
+    gsap.registerPlugin(ScrollTrigger, SplitText);
 
-export const config = {
-    /**
-     * CSS selector for section containers.
-     * Elements with bare .fx-* classes (no -pl/-st suffix) inside matching
-     * containers are auto scroll-triggered using the container as trigger.
-     */
-    sectionSelector: 'section',
+    // ── Config ──────────────────────────────────
 
-    /**
-     * Map of CSS selectors → effect names for zero-class auto-animation.
-     * Elements matching these selectors inside sections get animated automatically.
-     * Set to null/false to disable. Override before DOMContentLoaded or call FX.init().
-     *
-     * Example:
-     *   FX.config.tagMap = {
-     *       'h1,h2,h3,h4,h5,h6': 'textReveal',
-     *       'p,blockquote':       'textReveal',
-     *       'img,video':          'reveal',
-     *   }
-     */
-    tagMap: null,
-};
+    var config = {
+        /**
+         * CSS selector for section containers.
+         * Elements with bare .fx-* classes (no -pl/-st suffix) inside matching
+         * containers are auto scroll-triggered using the container as trigger.
+         */
+        sectionSelector: 'section',
 
-// ── Defaults ────────────────────────────────
+        /**
+         * Map of CSS selectors → effect names for zero-class auto-animation.
+         * Elements matching these selectors inside sections get animated automatically.
+         * Set to null/false to disable. Override before DOMContentLoaded or call FX.init().
+         *
+         * Example:
+         *   FX.config.tagMap = {
+         *       'h1,h2,h3,h4,h5,h6': 'textReveal',
+         *       'p,blockquote':       'textReveal',
+         *       'img,video':          'reveal',
+         *   }
+         */
+        tagMap: null,
+    };
 
-const SCROLL_DEFAULTS = { start: 'top 85%', once: true };
+    // ── Defaults ────────────────────────────────
 
-const EFFECT_DEFAULTS = {
-    textReveal:  { duration: 1.2, ease: 'power3.out', stagger: 0.1 },
-    reveal:      { duration: 1,   ease: 'power3.out' },
-    spinReveal:  { duration: 1.4, ease: 'power3.out' },
-    bgReveal:    { duration: 1,   ease: 'power3.out' },
-    scaleIn:     { duration: 1,   ease: 'power3.out' },
-};
+    var SCROLL_DEFAULTS = { start: 'top 85%', once: true };
 
-// ── Helpers ──────────────────────────────────
+    var EFFECT_DEFAULTS = {
+        textReveal:  { duration: 1.2, ease: 'power3.out', stagger: 0.1 },
+        reveal:      { duration: 1,   ease: 'power3.out' },
+        spinReveal:  { duration: 1.4, ease: 'power3.out' },
+        bgReveal:    { duration: 1,   ease: 'power3.out' },
+        scaleIn:     { duration: 1,   ease: 'power3.out' },
+    };
 
-/**
- * Parse modifier classes like .fx-duration-[1.5] .fx-delay-[0.3] from an element.
- * Uses bracket syntax so values with dots work in CSS class names.
- */
-function getClassModifier(el, name, fallback) {
-    const prefix = 'fx-' + name + '-[';
-    for (const cls of el.classList) {
-        if (cls.startsWith(prefix) && cls.endsWith(']')) {
-            const val = cls.slice(prefix.length, -1);
-            const num = parseFloat(val);
-            return isNaN(num) ? val : num;
+    // ── Helpers ──────────────────────────────────
+
+    function getClassModifier(el, name, fallback) {
+        var prefix = 'fx-' + name + '-[';
+        for (var i = 0; i < el.classList.length; i++) {
+            var cls = el.classList[i];
+            if (cls.indexOf(prefix) === 0 && cls.charAt(cls.length - 1) === ']') {
+                var val = cls.slice(prefix.length, -1);
+                var num = parseFloat(val);
+                return isNaN(num) ? val : num;
+            }
         }
-    }
-    return fallback;
-}
-
-function resolveOptions(el, effectName, overrides) {
-    const d = EFFECT_DEFAULTS[effectName];
-    return {
-        duration: getClassModifier(el, 'duration', overrides.duration ?? d.duration),
-        ease:     getClassModifier(el, 'ease',     overrides.ease     ?? d.ease),
-        stagger:  getClassModifier(el, 'stagger',  overrides.stagger  ?? d.stagger ?? 0),
-        delay:    getClassModifier(el, 'delay',     overrides.delay    ?? 0),
-    };
-}
-
-function buildScrollTrigger(el, scrollTriggerOpts) {
-    return {
-        trigger: scrollTriggerOpts.trigger || el,
-        ...SCROLL_DEFAULTS,
-        ...scrollTriggerOpts,
-    };
-}
-
-// ── Effects ──────────────────────────────────
-
-/**
- * Split text into lines with overflow-hidden mask, reveal upward.
- */
-export function textReveal(el, opts = {}) {
-    const o = resolveOptions(el, 'textReveal', opts);
-
-    const split = new SplitText(el, {
-        type: 'lines',
-        linesClass: 'line-wrapper',
-    });
-
-    split.lines.forEach(line => {
-        const wrapper = document.createElement('div');
-        wrapper.style.overflow = 'hidden';
-        line.parentNode.insertBefore(wrapper, line);
-        wrapper.appendChild(line);
-    });
-
-    const tweenVars = {
-        y: '100%',
-        opacity: 0,
-        duration: o.duration,
-        ease: o.ease,
-        stagger: o.stagger,
-        delay: o.delay,
-        onComplete() {
-            split.lines.forEach(line => {
-                line.style.transform = '';
-                line.style.opacity = '';
-            });
-        },
-    };
-
-    if (opts.trigger === 'scroll' || opts.scrollTrigger) {
-        tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        return fallback;
     }
 
-    gsap.from(split.lines, tweenVars);
-}
-
-/**
- * Slide-up reveal (images, cards, generic elements).
- */
-export function reveal(el, opts = {}) {
-    const o = resolveOptions(el, 'reveal', opts);
-
-    const tweenVars = {
-        y: opts.y ?? 80,
-        opacity: 0,
-        duration: o.duration,
-        ease: o.ease,
-        delay: o.delay,
-    };
-
-    if (opts.trigger === 'scroll' || opts.scrollTrigger) {
-        tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+    function resolveOptions(el, effectName, overrides) {
+        var d = EFFECT_DEFAULTS[effectName];
+        return {
+            duration: getClassModifier(el, 'duration', overrides.duration != null ? overrides.duration : d.duration),
+            ease:     getClassModifier(el, 'ease',     overrides.ease     != null ? overrides.ease     : d.ease),
+            stagger:  getClassModifier(el, 'stagger',  overrides.stagger  != null ? overrides.stagger  : (d.stagger || 0)),
+            delay:    getClassModifier(el, 'delay',     overrides.delay    != null ? overrides.delay    : 0),
+        };
     }
 
-    gsap.from(el, tweenVars);
-}
-
-/**
- * Rotate + scale in (badges, icons, decorative elements).
- */
-export function spinReveal(el, opts = {}) {
-    const o = resolveOptions(el, 'spinReveal', opts);
-
-    const tweenVars = {
-        rotation: opts.rotation ?? -30,
-        scale: opts.scale ?? 0.9,
-        opacity: 0,
-        duration: o.duration,
-        ease: o.ease,
-        delay: o.delay,
-    };
-
-    if (opts.trigger === 'scroll' || opts.scrollTrigger) {
-        tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+    function buildScrollTrigger(el, scrollTriggerOpts) {
+        var st = { trigger: scrollTriggerOpts.trigger || el };
+        for (var key in SCROLL_DEFAULTS) st[key] = SCROLL_DEFAULTS[key];
+        for (var key2 in scrollTriggerOpts) st[key2] = scrollTriggerOpts[key2];
+        return st;
     }
 
-    gsap.from(el, tweenVars);
-}
+    // ── Effects ──────────────────────────────────
 
-/**
- * Background container slide-up.
- */
-export function bgReveal(el, opts = {}) {
-    const o = resolveOptions(el, 'bgReveal', opts);
+    function textReveal(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'textReveal', opts);
 
-    const tweenVars = {
-        y: '100%',
-        opacity: 0,
-        duration: o.duration,
-        ease: o.ease,
-        delay: o.delay,
-    };
+        var split = new SplitText(el, { type: 'lines', linesClass: 'line-wrapper' });
 
-    if (opts.trigger === 'scroll' || opts.scrollTrigger) {
-        tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
-    }
-
-    gsap.from(el, tweenVars);
-}
-
-/**
- * Scale-in (glass panels, cards).
- */
-export function scaleIn(el, opts = {}) {
-    const o = resolveOptions(el, 'scaleIn', opts);
-
-    const tweenVars = {
-        scale: opts.scale ?? 0.92,
-        opacity: 0,
-        duration: o.duration,
-        ease: o.ease,
-        delay: o.delay,
-    };
-
-    if (opts.trigger === 'scroll' || opts.scrollTrigger) {
-        tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
-    }
-
-    gsap.from(el, tweenVars);
-}
-
-// ── Class-to-effect mapping ─────────────────
-
-const effects = {
-    'fx-text-reveal': textReveal,
-    'fx-reveal':      reveal,
-    'fx-spin-reveal': spinReveal,
-    'fx-bg-reveal':   bgReveal,
-    'fx-scale-in':    scaleIn,
-};
-
-/**
- * Group a NodeList by their direct parent element.
- */
-function groupByParent(nodeList) {
-    const map = new Map();
-    nodeList.forEach(el => {
-        const parent = el.parentElement;
-        if (!map.has(parent)) map.set(parent, []);
-        map.get(parent).push(el);
-    });
-    return Array.from(map.values());
-}
-
-/**
- * Apply a scroll-triggered effect to a group of elements sharing a trigger.
- */
-function applyScrollGroup(fn, group, triggerEl) {
-    group.forEach((el, i) => {
-        fn(el, {
-            trigger: 'scroll',
-            delay: i * 0.15,
-            scrollTrigger: { trigger: triggerEl },
+        split.lines.forEach(function (line) {
+            var wrapper = document.createElement('div');
+            wrapper.style.overflow = 'hidden';
+            line.parentNode.insertBefore(wrapper, line);
+            wrapper.appendChild(line);
         });
-    });
-}
 
-/**
- * Scan the DOM for .fx-* classes and apply animations.
- * Called automatically on DOMContentLoaded, or manually via FX.init().
- */
-export function init() {
-    const processed = new Set();
+        var tweenVars = {
+            y: '100%',
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            stagger: o.stagger,
+            delay: o.delay,
+            onComplete: function () {
+                split.lines.forEach(function (line) {
+                    line.style.transform = '';
+                    line.style.opacity = '';
+                });
+            },
+        };
 
-    Object.keys(effects).forEach(name => {
-        const fn = effects[name];
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
 
-        // 1. Page-load variant: .fx-<name>-pl
-        const plGroups = groupByParent(document.querySelectorAll('.' + name + '-pl'));
-        plGroups.forEach(group => {
-            group.forEach((el, i) => {
-                fn(el, { delay: i * 0.15 });
-                processed.add(el);
+        gsap.from(split.lines, tweenVars);
+    }
+
+    function reveal(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'reveal', opts);
+
+        var tweenVars = {
+            y: opts.y != null ? opts.y : 80,
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    function spinReveal(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'spinReveal', opts);
+
+        var tweenVars = {
+            rotation: opts.rotation != null ? opts.rotation : -30,
+            scale: opts.scale != null ? opts.scale : 0.9,
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    function bgReveal(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'bgReveal', opts);
+
+        var tweenVars = {
+            y: '100%',
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    function scaleIn(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'scaleIn', opts);
+
+        var tweenVars = {
+            scale: opts.scale != null ? opts.scale : 0.92,
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
+    // ── Class-to-effect mapping ─────────────────
+
+    var effects = {
+        'fx-text-reveal': textReveal,
+        'fx-reveal':      reveal,
+        'fx-spin-reveal': spinReveal,
+        'fx-bg-reveal':   bgReveal,
+        'fx-scale-in':    scaleIn,
+    };
+
+    var effectsByName = {
+        textReveal: textReveal,
+        reveal: reveal,
+        spinReveal: spinReveal,
+        bgReveal: bgReveal,
+        scaleIn: scaleIn,
+    };
+
+    // ── Helpers ──────────────────────────────────
+
+    function groupByParent(nodeList) {
+        var map = new Map();
+        nodeList.forEach(function (el) {
+            var parent = el.parentElement;
+            if (!map.has(parent)) map.set(parent, []);
+            map.get(parent).push(el);
+        });
+        var groups = [];
+        map.forEach(function (arr) { groups.push(arr); });
+        return groups;
+    }
+
+    function applyScrollGroup(fn, group, triggerEl) {
+        group.forEach(function (el, i) {
+            fn(el, {
+                trigger: 'scroll',
+                delay: i * 0.15,
+                scrollTrigger: { trigger: triggerEl },
             });
         });
+    }
 
-        // 2. Explicit scroll-trigger variant: .fx-<name>-st
-        const stGroups = groupByParent(document.querySelectorAll('.' + name + '-st'));
-        stGroups.forEach(group => {
-            const triggerEl = group[0].parentElement || group[0];
-            applyScrollGroup(fn, group, triggerEl);
-            group.forEach(el => processed.add(el));
+    function camelToKebab(str) {
+        return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    }
+
+    // ── Init ────────────────────────────────────
+
+    function init() {
+        var processed = new Set();
+
+        Object.keys(effects).forEach(function (name) {
+            var fn = effects[name];
+
+            // 1. Page-load variant: .fx-<name>-pl
+            var plGroups = groupByParent(document.querySelectorAll('.' + name + '-pl'));
+            plGroups.forEach(function (group) {
+                group.forEach(function (el, i) {
+                    fn(el, { delay: i * 0.15 });
+                    processed.add(el);
+                });
+            });
+
+            // 2. Explicit scroll-trigger variant: .fx-<name>-st
+            var stGroups = groupByParent(document.querySelectorAll('.' + name + '-st'));
+            stGroups.forEach(function (group) {
+                var triggerEl = group[0].parentElement || group[0];
+                applyScrollGroup(fn, group, triggerEl);
+                group.forEach(function (el) { processed.add(el); });
+            });
+
+            // 3. Bare class inside a section: .fx-<name> (no suffix)
+            if (config.sectionSelector) {
+                document.querySelectorAll(config.sectionSelector).forEach(function (section) {
+                    var bareEls = Array.from(section.querySelectorAll('.' + name))
+                        .filter(function (el) { return !processed.has(el); });
+                    if (bareEls.length === 0) return;
+
+                    var groups = groupByParent(bareEls);
+                    groups.forEach(function (group) {
+                        applyScrollGroup(fn, group, section);
+                        group.forEach(function (el) { processed.add(el); });
+                    });
+                });
+            }
         });
 
-        // 3. Bare class inside a section: .fx-<name> (no suffix)
-        //    Auto scroll-triggered using the closest section as trigger
-        if (config.sectionSelector) {
-            document.querySelectorAll(config.sectionSelector).forEach(section => {
-                const bareEls = Array.from(section.querySelectorAll('.' + name))
-                    .filter(el => !processed.has(el));
-                if (bareEls.length === 0) return;
+        // 4. Tag-based auto-animation inside sections
+        if (config.tagMap && config.sectionSelector) {
+            document.querySelectorAll(config.sectionSelector).forEach(function (section) {
+                Object.keys(config.tagMap).forEach(function (selector) {
+                    var effectName = config.tagMap[selector];
+                    var fn = effects['fx-' + camelToKebab(effectName)] || effectsByName[effectName];
+                    if (!fn) return;
 
-                const groups = groupByParent(bareEls);
-                groups.forEach(group => {
-                    applyScrollGroup(fn, group, section);
-                    group.forEach(el => processed.add(el));
+                    var els = Array.from(section.querySelectorAll(selector))
+                        .filter(function (el) { return !processed.has(el); });
+                    if (els.length === 0) return;
+
+                    var groups = groupByParent(els);
+                    groups.forEach(function (group) {
+                        applyScrollGroup(fn, group, section);
+                        group.forEach(function (el) { processed.add(el); });
+                    });
                 });
             });
         }
-    });
-
-    // 4. Tag-based auto-animation inside sections
-    if (config.tagMap && config.sectionSelector) {
-        document.querySelectorAll(config.sectionSelector).forEach(section => {
-            Object.keys(config.tagMap).forEach(selector => {
-                const effectName = config.tagMap[selector];
-                const fn = effects['fx-' + camelToKebab(effectName)] || effectsByName[effectName];
-                if (!fn) return;
-
-                const els = Array.from(section.querySelectorAll(selector))
-                    .filter(el => !processed.has(el));
-                if (els.length === 0) return;
-
-                const groups = groupByParent(els);
-                groups.forEach(group => {
-                    applyScrollGroup(fn, group, section);
-                    group.forEach(el => processed.add(el));
-                });
-            });
-        });
     }
-}
 
-/**
- * Convert camelCase to kebab-case: 'textReveal' → 'text-reveal'
- */
-function camelToKebab(str) {
-    return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-}
+    // ── Boot ────────────────────────────────────
 
-/**
- * Lookup map by camelCase name for tagMap config.
- */
-const effectsByName = {
-    textReveal, reveal, spinReveal, bgReveal, scaleIn,
-};
+    function applyPreConfig() {
+        var pre = window.__FX_CONFIG__;
+        if (!pre) return;
+        if (pre.sectionSelector !== undefined) config.sectionSelector = pre.sectionSelector;
+        if (pre.tagMap !== undefined) config.tagMap = pre.tagMap;
+    }
 
-// ── Auto-init ───────────────────────────────
+    function boot() {
+        applyPreConfig();
+        init();
+    }
 
-/**
- * Merge pre-configuration from window.__FX_CONFIG__ (set before SDK loads).
- */
-function applyPreConfig() {
-    const pre = window.__FX_CONFIG__;
-    if (!pre) return;
-    if (pre.sectionSelector !== undefined) config.sectionSelector = pre.sectionSelector;
-    if (pre.tagMap !== undefined) config.tagMap = pre.tagMap;
-}
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
 
-function boot() {
-    applyPreConfig();
-    init();
-}
+    // ── Public API ──────────────────────────────
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-} else {
-    boot();
-}
-
-// ── Public API on window ────────────────────
-
-window.FX = { config, textReveal, reveal, spinReveal, bgReveal, scaleIn, init };
+    window.FX = {
+        config: config,
+        textReveal: textReveal,
+        reveal: reveal,
+        spinReveal: spinReveal,
+        bgReveal: bgReveal,
+        scaleIn: scaleIn,
+        init: init,
+    };
+})();

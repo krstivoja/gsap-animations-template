@@ -278,7 +278,12 @@
 
 
     <!-- ── Scripts ── -->
-    <!-- Pre-configure tagMap before SDK loads -->
+    <!-- 1. GSAP core -->
+    <script src="../node_modules/gsap/dist/gsap.min.js"></script>
+    <!-- 2. GSAP plugins -->
+    <script src="../node_modules/gsap/dist/ScrollTrigger.min.js"></script>
+    <script src="../node_modules/gsap/dist/SplitText.min.js"></script>
+    <!-- 3. Optional: pre-configure before FX loads -->
     <script>
         window.__FX_CONFIG__ = {
             tagMap: {
@@ -290,8 +295,8 @@
             // sectionSelector: '.tagmap-demo',
         };
     </script>
-    <!-- SDK bundle -->
-    <script src="../dist/fx.js"></script>
+    <!-- 4. FX Animation SDK -->
+    <script src="../src/fx.js"></script>
 
 </body>
 </html>

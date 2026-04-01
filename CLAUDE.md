@@ -6,10 +6,10 @@ A class-driven GSAP animation framework. Users add CSS classes to HTML elements 
 ## Architecture
 
 ### SDK (`src/fx.js`)
-- Self-contained ES module that imports gsap, ScrollTrigger, SplitText from npm
+- Plain IIFE — no ES imports, no build step, no bundling
+- Expects gsap, ScrollTrigger, SplitText loaded as globals via script tags before it
 - Registers plugins, defines 5 effects, auto-scans DOM for `.fx-*` classes on DOMContentLoaded
-- Exposes named exports AND `window.FX` global for script-tag usage
-- Builds to IIFE (`dist/fx.min.js`) and ESM (`dist/fx.esm.min.js`) via esbuild
+- Exposes `window.FX` global
 
 ### Effects
 | Effect | Function | What it does |
@@ -47,28 +47,19 @@ init() uses a `processed` Set to avoid double-animating: explicit `-pl`/`-st` fi
 - `example/src/animations.js` — sample project-specific code (ICAP site orchestration)
 - Uses `file:..` dependency to reference the SDK locally
 
-## Build commands
-- `npm run build` — production IIFE bundle
-- `npm run build:esm` — production ESM bundle
-- `npm run build:all` — both
-- `npm run build:dev` — dev with sourcemaps
-- `npm run watch` — rebuild on changes
+## No build step
+No bundler, no compilation. GSAP + plugins are loaded as separate script tags from `node_modules/gsap/dist/`, then `src/fx.js` runs as a plain IIFE.
 
 ## Key decisions
+- **No build step**: plain script tags in the correct order — simpler to maintain, debug, and integrate with WordPress `wp_enqueue_script`
 - **CSS classes over data attributes**: Gutenberg block editor only exposes "Additional CSS classes" field
 - **Bracket syntax for modifiers** (`fx-duration-[2]`): allows decimal values in class names, inspired by Tailwind arbitrary values
-- **GSAP from npm, not CDN**: easier dependency management, single bundled output
-- **esbuild**: chosen for speed and simplicity over webpack/rollup
-- **IIFE + ESM dual output**: IIFE for WordPress script enqueue, ESM for modern bundled projects
-- **Auto-init + manual API**: SDK scans DOM automatically but also exports functions for compound sequences
-- **`window.FX` global**: allows project-specific JS files to call effects without import (useful for WordPress where scripts are enqueued separately)
-
-## npm publishing
-Package name is `@fancoolo/fx`. Run `npm publish` (or `npm publish --access public` for scoped packages) to publish. The `prepublishOnly` script builds automatically.
+- **GSAP from npm, not CDN**: version-locked via package.json, files served from node_modules
+- **`window.FX` global**: allows project-specific JS files to call effects (useful for WordPress where scripts are enqueued separately)
 
 ## Adding new effects
 1. Add default config to `EFFECT_DEFAULTS` in `src/fx.js`
 2. Create the effect function (follow existing pattern: resolveOptions → build tweenVars → conditional scrollTrigger → gsap.from)
-3. Export it
-4. Add to the `effects` map for class-based auto-discovery
+3. Add to the `effects` map for class-based auto-discovery
+4. Add to `effectsByName` for tagMap lookups
 5. Add to `window.FX`

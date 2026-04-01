@@ -1,28 +1,12 @@
 {
   "name": "@fancoolo/fx",
   "version": "1.0.0",
-  "description": "A lightweight, class-driven GSAP animation SDK. Add a CSS class, get an animation.",
-  "main": "dist/fx.js",
-  "module": "src/fx.js",
-  "files": [
-    "src/fx.js",
-    "dist/"
-  ],
-  "scripts": {
-    "build": "esbuild src/fx.js --bundle --minify --outfile=dist/fx.min.js --format=iife --global-name=FX",
-    "build:dev": "esbuild src/fx.js --bundle --sourcemap --outfile=dist/fx.js --format=iife --global-name=FX",
-    "build:esm": "esbuild src/fx.js --bundle --minify --outfile=dist/fx.esm.min.js --format=esm",
-    "build:all": "npm run build && npm run build:esm",
-    "watch": "esbuild src/fx.js --bundle --sourcemap --outfile=dist/fx.js --format=iife --global-name=FX --watch",
-    "prepublishOnly": "npm run build:all"
-  },
+  "description": "A lightweight, class-driven GSAP animation SDK.",
+  "main": "src/fx.js",
   "keywords": ["gsap", "animation", "scrolltrigger", "splittext", "wordpress", "gutenberg"],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "gsap": "^3.14.2"
-  },
-  "devDependencies": {
-    "esbuild": "^0.27.4"
   }
 }
