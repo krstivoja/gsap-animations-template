@@ -396,9 +396,10 @@ FX.init();</pre>
 		// Copy class on click
 		$('[data-copy]').on('click', function() {
 			var el = $(this);
-			copyText(el.text());
-			el.addClass('copied');
-			setTimeout(function() { el.removeClass('copied'); }, 1000);
+			var original = el.text();
+			copyText(original);
+			el.text('Copied!').addClass('copied');
+			setTimeout(function() { el.text(original).removeClass('copied'); }, 1000);
 		});
 	});
 	</script>
