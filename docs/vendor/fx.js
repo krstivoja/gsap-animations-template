@@ -88,6 +88,7 @@
         blurIn:      { duration: 1.2, ease: 'power2.out' },
         clipUp:      { duration: 1,   ease: 'power3.inOut' },
         clipDown:    { duration: 1,   ease: 'power3.inOut' },
+        tiltIn:      { duration: 1.4, ease: 'power3.out' },
     };
 
     // ── Helpers ──────────────────────────────────
@@ -319,6 +320,31 @@
         gsap.from(el, tweenVars);
     }
 
+    function tiltIn(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'tiltIn', opts);
+
+        gsap.fromTo(el, {
+            rotationX: opts.rotationX != null ? opts.rotationX : 45,
+            scale: opts.scale != null ? opts.scale : 0.8,
+            opacity: opts.opacity != null ? opts.opacity : 0,
+            transformPerspective: opts.perspective != null ? opts.perspective : 1000,
+            transformOrigin: opts.transformOrigin || 'center bottom',
+        }, {
+            rotationX: 0,
+            scale: 1,
+            opacity: 1,
+            transformPerspective: 1000,
+            ease: o.ease,
+            scrollTrigger: {
+                trigger: (opts.scrollTrigger && opts.scrollTrigger.trigger) || el,
+                start: config.scrollStart || 'top 85%',
+                end: opts.end || 'top 20%',
+                scrub: opts.scrub != null ? opts.scrub : 0.6,
+            },
+        });
+    }
+
     // ── Class-to-effect mapping ─────────────────
 
     var effects = {
@@ -343,6 +369,7 @@
         blurIn: blurIn,
         clipUp: clipUp,
         clipDown: clipDown,
+        tiltIn: tiltIn,
     };
 
     // ── Helpers ──────────────────────────────────
@@ -430,7 +457,16 @@
             }
         });
 
-        // 4. Tag-based auto-animation inside sections
+        // 4. fx-tilt-in — scrub-based 3D perspective (always scroll-linked)
+        //    Processed before tagMap so tilt elements aren't grabbed by tagMap first.
+        document.querySelectorAll('.fx-tilt-in-st, .fx-tilt-in-pl, .fx-tilt-in').forEach(function (el) {
+            if (!processed.has(el)) {
+                tiltIn(el);
+                processed.add(el);
+            }
+        });
+
+        // 5. Tag-based auto-animation inside sections
         if (config.tagMap && config.sectionSelector) {
             document.querySelectorAll(config.sectionSelector).forEach(function (section) {
                 Object.keys(config.tagMap).forEach(function (selector) {
@@ -493,6 +529,7 @@
                 processed.add(child);
             });
         });
+
     }
 
     // ── Boot ────────────────────────────────────
@@ -530,6 +567,7 @@
         blurIn: blurIn,
         clipUp: clipUp,
         clipDown: clipDown,
+        tiltIn: tiltIn,
         init: init,
     };
 })();

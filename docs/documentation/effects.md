@@ -1,6 +1,6 @@
 # Effects Reference
 
-FX ships with 9 animation effects. Each can be triggered on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class).
+FX ships with 10 animation effects. Most trigger on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class). Tilt In is special — it's scrub-based and tied to scroll position.
 
 ## Quick Reference Table
 
@@ -11,10 +11,11 @@ FX ships with 9 animation effects. Each can be triggered on page load (`-pl`), o
 | Spin Reveal | `fx-spin-reveal` | `FX.spinReveal()` | Rotate and scale in |
 | BG Reveal | `fx-bg-reveal` | `FX.bgReveal()` | Background container slide up |
 | Scale In | `fx-scale-in` | `FX.scaleIn()` | Scale up from smaller size with fade |
-| Fade In | `fx-fade-in` | `FX.fadeIn()` | Opacity only, no movement |
+| Fade In | `fx-fade-in` | `FX.fadeIn()` | Opacity + subtle scale, no movement |
 | Blur In | `fx-blur-in` | `FX.blurIn()` | Fade in while deblurring |
 | Clip Up | `fx-clip-up` | `FX.clipUp()` | Clip-path wipe revealing from bottom |
 | Clip Down | `fx-clip-down` | `FX.clipDown()` | Clip-path wipe revealing from top |
+| Tilt In | `fx-tilt-in` | `FX.tiltIn()` | 3D perspective reveal (scrub-based) |
 
 ---
 
@@ -344,6 +345,42 @@ Same as Clip Up but reveals from the top edge downward.
 
 ---
 
+## Tilt In
+
+3D perspective reveal tied to scroll position. Unlike other effects, this one is **scrub-based** — the animation progress follows your scroll position. Scroll down and the element gradually stands up; scroll back up and it tilts back.
+
+**Class:** `fx-tilt-in-st` | `fx-tilt-in`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `1.4s` |
+| Ease | `power3.out` |
+| From rotationX | `45deg` |
+| From Scale | `0.8` |
+| From Opacity | `0` |
+| Perspective | `1000px` |
+| Transform Origin | `center bottom` |
+| Scrub | `0.6` (smooth lag) |
+| Scroll Range | `top 85%` → `top 20%` |
+
+**Usage:**
+
+```html
+<!-- Image tilts into place as you scroll -->
+<img src="photo.jpg" class="fx-tilt-in-st" />
+
+<!-- Card with 3D perspective -->
+<div class="card fx-tilt-in-st">Content</div>
+```
+
+**Best for:** Images, cards, hero panels — creates depth and a premium feel.
+
+**Note:** This is the only scrub-based effect. It doesn't use `-pl` (page load) since it needs scroll to drive it. The animation reverses when scrolling back up.
+
+---
+
 ## All Defaults at a Glance
 
 | Effect | Duration | Ease | Stagger | Unique Props |
@@ -353,9 +390,10 @@ Same as Clip Up but reveals from the top edge downward.
 | spinReveal | 1.4s | power3.out | — | rotation: -30, scale: 0.9 |
 | bgReveal | 1s | power3.out | — | y: 100% |
 | scaleIn | 1s | power3.out | — | scale: 0.92 |
-| fadeIn | 0.8s | power2.out | — | opacity only |
+| fadeIn | 1.4s | power1.out | — | opacity + scale: 0.95 |
 | blurIn | 1.2s | power2.out | — | filter: blur(12px) |
 | clipUp | 1s | power3.inOut | — | clipPath: inset(100% 0 0 0) |
 | clipDown | 1s | power3.inOut | — | clipPath: inset(0 0 100% 0) |
+| tiltIn | 1.4s | power3.out | — | rotationX: 45, scale: 0.8, scrub: 0.6 |
 
-All effects except clipUp/clipDown animate `opacity` from `0` to `1`.
+All effects except clipUp/clipDown and tiltIn animate `opacity` from `0` to `1`. Tilt In animates opacity from `0` but is scrub-based (tied to scroll position).

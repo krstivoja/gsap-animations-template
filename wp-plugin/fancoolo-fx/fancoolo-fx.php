@@ -3,7 +3,7 @@
  * Plugin Name: Fancoolo FX
  * Plugin URI: https://github.com/krstivoja/fancoolo-fx
  * Description: A class-driven GSAP animation wrapper. Add CSS classes in Gutenberg and get animations — no JavaScript needed.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Fancoolo
  * Author URI: https://github.com/krstivoja
  * License: ISC
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FANCOOLO_FX_VERSION', '1.1.0' );
+define( 'FANCOOLO_FX_VERSION', '1.2.0' );
 define( 'FANCOOLO_FX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FANCOOLO_FX_URL', plugin_dir_url( __FILE__ ) );
 
@@ -253,6 +253,11 @@ function fancoolo_fx_render_admin_page() {
 					<tr><td><code>FX.spinReveal(el, opts)</code></td><td>Rotate and scale in</td></tr>
 					<tr><td><code>FX.bgReveal(el, opts)</code></td><td>Background slide up</td></tr>
 					<tr><td><code>FX.scaleIn(el, opts)</code></td><td>Scale up with fade</td></tr>
+					<tr><td><code>FX.fadeIn(el, opts)</code></td><td>Opacity + subtle scale, no movement</td></tr>
+					<tr><td><code>FX.blurIn(el, opts)</code></td><td>Fade in while deblurring</td></tr>
+					<tr><td><code>FX.clipUp(el, opts)</code></td><td>Clip-path wipe from bottom</td></tr>
+					<tr><td><code>FX.clipDown(el, opts)</code></td><td>Clip-path wipe from top</td></tr>
+					<tr><td><code>FX.tiltIn(el, opts)</code></td><td>3D perspective reveal (scrub-based)</td></tr>
 					<tr><td><code>FX.init()</code></td><td>Re-scan DOM — call after changing any config</td></tr>
 				</tbody>
 			</table>
@@ -366,6 +371,11 @@ FX.init();</pre>
 			<div class="ffx-class-row"><code data-copy>fx-clip-down-pl</code><span class="ffx-desc">Page load — clip-path wipe from top</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-clip-down-st</code><span class="ffx-desc">Scroll triggered</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-clip-down</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Tilt In -->
+			<div class="ffx-group-title">Tilt In <span style="font-weight:normal;color:#646970;font-size:12px;">(scrub — tied to scroll position)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-tilt-in-st</code><span class="ffx-desc">3D perspective reveal linked to scroll</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-tilt-in</code><span class="ffx-desc">Auto triggered inside a section</span></div>
 
 			<!-- Stagger All -->
 			<div class="ffx-group-title" style="margin-top: 20px;">Stagger Children <span style="font-weight:normal;color:#646970;font-size:12px;">(pair with an effect class)</span></div>

@@ -50,6 +50,7 @@ Load in this order:
 | Blur In | `fx-blur-in` | `FX.blurIn()` | Fade in + deblur (camera focus effect) | 1.2s | power2.out |
 | Clip Up | `fx-clip-up` | `FX.clipUp()` | Clip-path wipe from bottom | 1s | power3.inOut |
 | Clip Down | `fx-clip-down` | `FX.clipDown()` | Clip-path wipe from top | 1s | power3.inOut |
+| Tilt In | `fx-tilt-in` | `FX.tiltIn()` | 3D perspective reveal (scrub-based) | 1.4s | power3.out |
 
 ## Stagger Children Modifier
 
