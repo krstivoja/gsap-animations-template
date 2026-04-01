@@ -180,6 +180,9 @@ function fancoolo_fx_render_admin_page() {
 		.ffx-tab.active { background: #fff; border-color: #c3c4c7; color: #1d2327; }
 		.ffx-panel { display: none; background: #fff; border: 1px solid #c3c4c7; border-top: none; padding: 24px; }
 		.ffx-panel.active { display: block; }
+		.ffx-panel-editor { padding: 0; position: relative; }
+		.ffx-panel-editor .CodeMirror { border: none; }
+		.ffx-save-btn { position: absolute; top: 12px; right: 12px; z-index: 10; }
 		.ffx-copy-wrap { position: relative; }
 		.ffx-copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; background: #3c434a; color: #bbb; border: 1px solid #555; border-radius: 3px; }
 		.ffx-copy-btn:hover { color: #fff; border-color: #888; }
@@ -201,31 +204,29 @@ function fancoolo_fx_render_admin_page() {
 			and they will animate automatically.
 		</p>
 
-		<!-- ── Tabs ── -->
-		<div class="ffx-tabs">
-			<button class="ffx-tab active" data-tab="editor">Editor</button>
-			<button class="ffx-tab" data-tab="config">Config Reference</button>
-			<button class="ffx-tab" data-tab="classes">Classes Reference</button>
-		</div>
 
-		<!-- ═══ Editor Tab ═══ -->
-		<div class="ffx-panel active" data-panel="editor">
-			<form method="post">
-				<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
+		<!-- ═══ Editor ═══ -->
+		<form method="post">
+			<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
+			<div style="position:relative; background:#fff; border:1px solid #c3c4c7; border-bottom:none;">
+				<input type="submit" name="fancoolo_fx_save" class="button button-primary ffx-save-btn" value="Save Changes">
 				<textarea
 					id="fancoolo-fx-editor"
 					name="fancoolo_fx_code"
 					rows="20"
 					style="width: 100%; font-family: monospace;"
 				><?php echo esc_textarea( $content ); ?></textarea>
-				<p class="submit">
-					<input type="submit" name="fancoolo_fx_save" class="button button-primary" value="Save Changes">
-				</p>
-			</form>
+			</div>
+		</form>
+
+		<!-- ── Reference Tabs ── -->
+		<div class="ffx-tabs">
+			<button class="ffx-tab active" data-tab="config">Config Reference</button>
+			<button class="ffx-tab" data-tab="classes">Classes Reference</button>
 		</div>
 
 		<!-- ═══ Config Reference Tab ═══ -->
-		<div class="ffx-panel" data-panel="config">
+		<div class="ffx-panel active" data-panel="config">
 
 			<h3>Config Options</h3>
 			<table class="widefat fixed striped" style="max-width: 700px;">
