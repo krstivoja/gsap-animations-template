@@ -321,6 +321,8 @@
             });
 
             // 3. Bare class inside a section: .fx-<name> (no suffix)
+            //    Only elements inside a matching section are picked up,
+            //    but each element triggers itself (same as -st).
             if (config.sectionSelector) {
                 document.querySelectorAll(config.sectionSelector).forEach(function (section) {
                     var bareEls = Array.from(section.querySelectorAll('.' + name))
@@ -329,8 +331,14 @@
 
                     var groups = groupByParent(bareEls);
                     groups.forEach(function (group) {
-                        applyScrollGroup(fn, group, section);
-                        group.forEach(function (el) { processed.add(el); });
+                        group.forEach(function (el, i) {
+                            fn(el, {
+                                trigger: 'scroll',
+                                delay: i * 0.15,
+                                scrollTrigger: { trigger: el },
+                            });
+                            processed.add(el);
+                        });
                     });
                 });
             }
