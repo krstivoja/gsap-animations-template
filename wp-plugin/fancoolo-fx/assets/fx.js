@@ -305,11 +305,19 @@
             });
 
             // 2. Explicit scroll-trigger variant: .fx-<name>-st
-            var stGroups = groupByParent(document.querySelectorAll('.' + name + '-st'));
+            //    Each element triggers itself (not the parent), so it works
+            //    regardless of how deep it sits in the DOM.
+            var stEls = document.querySelectorAll('.' + name + '-st');
+            var stGroups = groupByParent(stEls);
             stGroups.forEach(function (group) {
-                var triggerEl = group[0].parentElement || group[0];
-                applyScrollGroup(fn, group, triggerEl);
-                group.forEach(function (el) { processed.add(el); });
+                group.forEach(function (el, i) {
+                    fn(el, {
+                        trigger: 'scroll',
+                        delay: i * 0.15,
+                        scrollTrigger: { trigger: el },
+                    });
+                    processed.add(el);
+                });
             });
 
             // 3. Bare class inside a section: .fx-<name> (no suffix)
