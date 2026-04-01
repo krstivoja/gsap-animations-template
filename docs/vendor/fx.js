@@ -251,6 +251,7 @@
 
         var tweenVars = {
             opacity: 0,
+            scale: opts.scale != null ? opts.scale : 0.95,
             duration: o.duration,
             ease: o.ease,
             delay: o.delay,
