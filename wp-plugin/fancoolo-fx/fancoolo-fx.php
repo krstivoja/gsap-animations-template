@@ -173,6 +173,27 @@ function fancoolo_fx_render_admin_page() {
 
 	settings_errors( 'fancoolo_fx' );
 	?>
+	<style>
+		.ffx-tabs { display: flex; gap: 0; border-bottom: 1px solid #c3c4c7; margin: 20px 0 0; }
+		.ffx-tab { padding: 10px 20px; cursor: pointer; font-weight: 600; font-size: 14px; color: #50575e; border: 1px solid transparent; border-bottom: none; margin-bottom: -1px; background: none; border-radius: 4px 4px 0 0; }
+		.ffx-tab:hover { color: #1d2327; }
+		.ffx-tab.active { background: #fff; border-color: #c3c4c7; color: #1d2327; }
+		.ffx-panel { display: none; background: #fff; border: 1px solid #c3c4c7; border-top: none; padding: 24px; }
+		.ffx-panel.active { display: block; }
+		.ffx-copy-wrap { position: relative; }
+		.ffx-copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; background: #3c434a; color: #bbb; border: 1px solid #555; border-radius: 3px; }
+		.ffx-copy-btn:hover { color: #fff; border-color: #888; }
+		.ffx-copy-btn.copied { color: #46b450; border-color: #46b450; }
+		.ffx-pre { background: #23282d; color: #eee; padding: 16px; border-radius: 4px; margin: 0; overflow-x: auto; font-size: 13px; line-height: 1.6; }
+		.ffx-class-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid #f0f0f1; }
+		.ffx-class-row:last-child { border-bottom: none; }
+		.ffx-class-row code { background: #f0f0f1; padding: 3px 8px; border-radius: 3px; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+		.ffx-class-row code:hover { background: #2271b1; color: #fff; }
+		.ffx-class-row code.copied { background: #46b450; color: #fff; }
+		.ffx-class-row .ffx-desc { color: #646970; font-size: 13px; }
+		.ffx-group-title { font-weight: 600; font-size: 14px; padding: 12px 0 4px; color: #1d2327; border-bottom: 2px solid #2271b1; margin-bottom: 4px; }
+	</style>
+
 	<div class="wrap">
 		<h1>Fancoolo FX</h1>
 		<p>
@@ -180,64 +201,93 @@ function fancoolo_fx_render_admin_page() {
 			and they will animate automatically.
 		</p>
 
-		<hr>
-
-		<h2>Custom JavaScript</h2>
+		<!-- ── Editor ── -->
+		<h2 style="margin-top: 24px;">Custom JavaScript</h2>
 		<p>
-			Use this editor to add custom animation sequences, override defaults, or configure
-			<code>__FX_CONFIG__</code>. This code loads after fx.js on the frontend.
-			Leave empty to use defaults only.
+			This code loads after fx.js on the frontend. Leave empty to use defaults only.
 		</p>
-
 		<form method="post">
 			<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
 			<textarea
 				id="fancoolo-fx-editor"
 				name="fancoolo_fx_code"
-				rows="20"
+				rows="16"
 				style="width: 100%; font-family: monospace;"
 			><?php echo esc_textarea( $content ); ?></textarea>
 			<p class="submit">
-				<input
-					type="submit"
-					name="fancoolo_fx_save"
-					class="button button-primary"
-					value="Save Changes"
-				>
+				<input type="submit" name="fancoolo_fx_save" class="button button-primary" value="Save Changes">
 			</p>
 		</form>
 
-		<hr>
+		<!-- ── Tabs ── -->
+		<div class="ffx-tabs">
+			<button class="ffx-tab active" data-tab="config">Config Reference</button>
+			<button class="ffx-tab" data-tab="classes">Classes Reference</button>
+		</div>
 
-		<h2>Examples</h2>
-		<p>Copy any of these into the editor above and hit Save.</p>
+		<!-- ═══ Config Reference Tab ═══ -->
+		<div class="ffx-panel active" data-panel="config">
 
-		<h3 style="margin-top: 1.5em;">Auto-animate by tag (zero classes needed)</h3>
-		<pre style="background: #23282d; color: #eee; padding: 16px; border-radius: 4px; max-width: 700px; overflow-x: auto;"><code>// Every heading, paragraph, and image inside sections
-// animates automatically — no classes needed in Gutenberg
-FX.config.tagMap = {
+			<h3>Config Options</h3>
+			<table class="widefat fixed striped" style="max-width: 700px;">
+				<thead>
+					<tr><th>Option</th><th>Default</th><th>Description</th></tr>
+				</thead>
+				<tbody>
+					<tr><td><code>FX.config.tagMap</code></td><td><code>null</code></td><td>Auto-animate elements by tag/selector — no classes needed</td></tr>
+					<tr><td><code>FX.config.sectionSelector</code></td><td><code>'section'</code></td><td>Containers for bare-class and tagMap triggering</td></tr>
+					<tr><td><code>FX.config.scrollStart</code></td><td><code>'top 85%'</code></td><td>When scroll animations trigger (GSAP ScrollTrigger start format)</td></tr>
+					<tr><td><code>FX.config.scrollOnce</code></td><td><code>true</code></td><td>Play once or replay on every scroll</td></tr>
+				</tbody>
+			</table>
+
+			<h3 style="margin-top: 24px;">JS API Functions</h3>
+			<table class="widefat fixed striped" style="max-width: 700px;">
+				<thead>
+					<tr><th>Function</th><th>Description</th></tr>
+				</thead>
+				<tbody>
+					<tr><td><code>FX.textReveal(el, opts)</code></td><td>Split text lines, masked reveal upward</td></tr>
+					<tr><td><code>FX.reveal(el, opts)</code></td><td>Slide up with fade</td></tr>
+					<tr><td><code>FX.spinReveal(el, opts)</code></td><td>Rotate and scale in</td></tr>
+					<tr><td><code>FX.bgReveal(el, opts)</code></td><td>Background slide up</td></tr>
+					<tr><td><code>FX.scaleIn(el, opts)</code></td><td>Scale up with fade</td></tr>
+					<tr><td><code>FX.init()</code></td><td>Re-scan DOM — call after changing any config</td></tr>
+				</tbody>
+			</table>
+
+			<h3 style="margin-top: 24px;">Examples <span style="font-weight:normal;color:#646970;font-size:13px;">(click code to copy)</span></h3>
+
+			<h4 style="margin-top: 16px;">Auto-animate by tag</h4>
+			<div class="ffx-copy-wrap">
+				<button class="ffx-copy-btn" data-target="ex1">Copy</button>
+				<pre class="ffx-pre" id="ex1">FX.config.tagMap = {
     'h1,h2,h3,h4,h5,h6': 'textReveal',
     'p,blockquote':       'textReveal',
     'img,video':          'reveal',
 };
 FX.config.sectionSelector = 'section, .wp-block-group';
-FX.init();</code></pre>
+FX.init();</pre>
+			</div>
 
-		<h3 style="margin-top: 1.5em;">Change scroll trigger position</h3>
-		<pre style="background: #23282d; color: #eee; padding: 16px; border-radius: 4px; max-width: 700px; overflow-x: auto;"><code>// Trigger animations when elements reach the center of the viewport
-// instead of the default 85% (near the bottom)
-FX.config.scrollStart = 'top center';
-FX.init();</code></pre>
+			<h4 style="margin-top: 16px;">Change scroll trigger position</h4>
+			<div class="ffx-copy-wrap">
+				<button class="ffx-copy-btn" data-target="ex2">Copy</button>
+				<pre class="ffx-pre" id="ex2">FX.config.scrollStart = 'top center';
+FX.init();</pre>
+			</div>
 
-		<h3 style="margin-top: 1.5em;">Replay animations on re-scroll</h3>
-		<pre style="background: #23282d; color: #eee; padding: 16px; border-radius: 4px; max-width: 700px; overflow-x: auto;"><code>// Animations replay every time the element enters the viewport
-// instead of playing once
-FX.config.scrollOnce = false;
-FX.init();</code></pre>
+			<h4 style="margin-top: 16px;">Replay animations on re-scroll</h4>
+			<div class="ffx-copy-wrap">
+				<button class="ffx-copy-btn" data-target="ex3">Copy</button>
+				<pre class="ffx-pre" id="ex3">FX.config.scrollOnce = false;
+FX.init();</pre>
+			</div>
 
-		<h3 style="margin-top: 1.5em;">Compound sequence (JS API)</h3>
-		<pre style="background: #23282d; color: #eee; padding: 16px; border-radius: 4px; max-width: 700px; overflow-x: auto;"><code>// Orchestrate multiple animations with specific timing
-document.addEventListener('DOMContentLoaded', function () {
+			<h4 style="margin-top: 16px;">Compound sequence</h4>
+			<div class="ffx-copy-wrap">
+				<button class="ffx-copy-btn" data-target="ex4">Copy</button>
+				<pre class="ffx-pre" id="ex4">document.addEventListener('DOMContentLoaded', function () {
     var hero = document.querySelector('.wp-block-cover');
     if (!hero) return;
 
@@ -254,82 +304,93 @@ document.addEventListener('DOMContentLoaded', function () {
             scrollTrigger: { trigger: hero }
         });
     }
-});</code></pre>
+});</pre>
+			</div>
+		</div>
 
-		<h3 style="margin-top: 1.5em;">Available JS API functions</h3>
-		<table class="widefat fixed striped" style="max-width: 700px;">
-			<thead>
-				<tr>
-					<th>Function</th>
-					<th>Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><code>FX.textReveal(el, opts)</code></td>
-					<td>Split text lines, masked reveal upward</td>
-				</tr>
-				<tr>
-					<td><code>FX.reveal(el, opts)</code></td>
-					<td>Slide up with fade</td>
-				</tr>
-				<tr>
-					<td><code>FX.spinReveal(el, opts)</code></td>
-					<td>Rotate and scale in</td>
-				</tr>
-				<tr>
-					<td><code>FX.bgReveal(el, opts)</code></td>
-					<td>Background slide up</td>
-				</tr>
-				<tr>
-					<td><code>FX.scaleIn(el, opts)</code></td>
-					<td>Scale up with fade</td>
-				</tr>
-				<tr>
-					<td><code>FX.init()</code></td>
-					<td>Re-scan DOM (call after changing config)</td>
-				</tr>
-			</tbody>
-		</table>
+		<!-- ═══ Classes Reference Tab ═══ -->
+		<div class="ffx-panel" data-panel="classes">
 
-		<h3 style="margin-top: 1.5em;">Config options</h3>
-		<table class="widefat fixed striped" style="max-width: 700px;">
-			<thead>
-				<tr>
-					<th>Option</th>
-					<th>Default</th>
-					<th>Description</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><code>FX.config.sectionSelector</code></td>
-					<td><code>'section'</code></td>
-					<td>Containers for bare-class and tagMap triggering</td>
-				</tr>
-				<tr>
-					<td><code>FX.config.scrollStart</code></td>
-					<td><code>'top 85%'</code></td>
-					<td>When scroll animations trigger</td>
-				</tr>
-				<tr>
-					<td><code>FX.config.scrollOnce</code></td>
-					<td><code>true</code></td>
-					<td>Play once or replay on every scroll</td>
-				</tr>
-				<tr>
-					<td><code>FX.config.tagMap</code></td>
-					<td><code>null</code></td>
-					<td>Auto-animate by tag name (no classes needed)</td>
-				</tr>
-			</tbody>
-		</table>
+			<p style="margin-bottom: 16px; color: #646970;">
+				Add these in Gutenberg: select a block &rarr; Advanced &rarr; Additional CSS class(es). Click any class to copy it.
+			</p>
 
-		<p style="margin-top: 2em;">
+			<!-- Text Reveal -->
+			<div class="ffx-group-title">Text Reveal</div>
+			<div class="ffx-class-row"><code data-copy>fx-text-reveal-pl</code><span class="ffx-desc">Page load — masked line-by-line reveal</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-text-reveal-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-text-reveal</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Reveal -->
+			<div class="ffx-group-title">Reveal</div>
+			<div class="ffx-class-row"><code data-copy>fx-reveal-pl</code><span class="ffx-desc">Page load — slide up with fade</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-reveal-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-reveal</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Spin Reveal -->
+			<div class="ffx-group-title">Spin Reveal</div>
+			<div class="ffx-class-row"><code data-copy>fx-spin-reveal-pl</code><span class="ffx-desc">Page load — rotate and scale in</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-spin-reveal-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-spin-reveal</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- BG Reveal -->
+			<div class="ffx-group-title">BG Reveal</div>
+			<div class="ffx-class-row"><code data-copy>fx-bg-reveal-pl</code><span class="ffx-desc">Page load — background slide up</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-bg-reveal-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-bg-reveal</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Scale In -->
+			<div class="ffx-group-title">Scale In</div>
+			<div class="ffx-class-row"><code data-copy>fx-scale-in-pl</code><span class="ffx-desc">Page load — scale up with fade</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-scale-in-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-scale-in</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Modifiers -->
+			<div class="ffx-group-title" style="margin-top: 20px;">Modifiers <span style="font-weight:normal;color:#646970;font-size:12px;">(combine with any effect class)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-duration-[1.5]</code><span class="ffx-desc">Custom duration (seconds)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-delay-[0.3]</code><span class="ffx-desc">Delay before animating (seconds)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-stagger-[0.25]</code><span class="ffx-desc">Delay between staggered siblings</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-ease-[power2.inOut]</code><span class="ffx-desc">GSAP easing function</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-start-[top center]</code><span class="ffx-desc">Scroll trigger start position</span></div>
+		</div>
+
+		<p style="margin-top: 24px;">
 			<a href="https://krstivoja.github.io/gsap-animations-template/documentation/" target="_blank">
 				Full Documentation &rarr;
 			</a>
 		</p>
 	</div>
+
+	<script>
+	jQuery(function($) {
+		// Tab switching
+		$('.ffx-tab').on('click', function() {
+			var tab = $(this).data('tab');
+			$('.ffx-tab').removeClass('active');
+			$(this).addClass('active');
+			$('.ffx-panel').removeClass('active');
+			$('.ffx-panel[data-panel="' + tab + '"]').addClass('active');
+		});
+
+		// Copy code blocks
+		$('.ffx-copy-btn').on('click', function() {
+			var btn = $(this);
+			var target = $('#' + btn.data('target'));
+			navigator.clipboard.writeText(target.text()).then(function() {
+				btn.text('Copied!').addClass('copied');
+				setTimeout(function() { btn.text('Copy').removeClass('copied'); }, 1500);
+			});
+		});
+
+		// Copy class on click
+		$('[data-copy]').on('click', function() {
+			var el = $(this);
+			navigator.clipboard.writeText(el.text()).then(function() {
+				el.addClass('copied');
+				setTimeout(function() { el.removeClass('copied'); }, 1000);
+			});
+		});
+	});
+	</script>
 	<?php
 }
