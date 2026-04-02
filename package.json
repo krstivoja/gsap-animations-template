@@ -1,6 +1,6 @@
 {
   "name": "fancoolo-fx",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A class-driven GSAP animation wrapper for WordPress and static sites.",
   "main": "src/fx.js",
   "homepage": "https://krstivoja.github.io/fancoolo-fx/",

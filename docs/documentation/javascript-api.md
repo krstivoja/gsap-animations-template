@@ -13,8 +13,18 @@ When `fx.js` loads, it creates a `window.FX` object with these methods:
 | `FX.spinReveal(el, opts)` | Rotate and scale in |
 | `FX.bgReveal(el, opts)` | Background slide up |
 | `FX.scaleIn(el, opts)` | Scale up with fade |
+| `FX.fadeIn(el, opts)` | Opacity only, no movement |
+| `FX.blurIn(el, opts)` | Fade in while deblurring |
+| `FX.clipUp(el, opts)` | Clip-path wipe from bottom |
+| `FX.clipDown(el, opts)` | Clip-path wipe from top |
+| `FX.tiltIn(el, opts)` | 3D perspective reveal (scrub-based) |
+| `FX.typeWriter(el, opts)` | Character-by-character typing reveal |
+| `FX.drawSVG(el, opts)` | SVG stroke drawing animation |
+| `FX.parallax(el, opts)` | Scroll-linked Y parallax shift |
+| `FX.splitWords(el, opts)` | Word-by-word fade and slide up |
+| `FX.slideIn(el, opts)` | Horizontal slide from left or right |
 | `FX.init()` | Re-scan DOM and apply animations |
-| `FX.config` | Global config object (`sectionSelector`, `scrollStart`, `scrollOnce`, `tagMap`) |
+| `FX.config` | Global config object |
 
 ## Basic Usage
 
@@ -48,6 +58,8 @@ All effect functions accept `(element, options)`:
 | `y` | reveal | Number | `80` | Vertical offset in pixels |
 | `rotation` | spinReveal | Number | `-30` | Starting rotation in degrees |
 | `scale` | spinReveal, scaleIn | Number | `0.9` / `0.92` | Starting scale |
+| `direction` | slideIn | String | `'left'` | Slide direction: `'left'` or `'right'` |
+| `x` | slideIn | Number | `100` | Horizontal offset in pixels |
 
 ## Scroll Trigger Options
 

@@ -1,6 +1,6 @@
 # Effects Reference
 
-FX ships with 10 animation effects. Most trigger on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class). Tilt In is special — it's scrub-based and tied to scroll position.
+FX ships with 15 animation effects. Most trigger on page load (`-pl`), on scroll (`-st`), or automatically inside a section (bare class). Tilt In and Parallax are special — they're scrub-based and tied to scroll position.
 
 ## Quick Reference Table
 
@@ -16,6 +16,11 @@ FX ships with 10 animation effects. Most trigger on page load (`-pl`), on scroll
 | Clip Up | `fx-clip-up` | `FX.clipUp()` | Clip-path wipe revealing from bottom |
 | Clip Down | `fx-clip-down` | `FX.clipDown()` | Clip-path wipe revealing from top |
 | Tilt In | `fx-tilt-in` | `FX.tiltIn()` | 3D perspective reveal (scrub-based) |
+| Type Writer | `fx-type-writer` | `FX.typeWriter()` | Character-by-character typing reveal |
+| Draw SVG | `fx-draw-svg` | `FX.drawSVG()` | Stroke-dashoffset animation for SVG paths |
+| Split Words | `fx-split-words` | `FX.splitWords()` | Word-by-word fade and slide up |
+| Slide In | `fx-slide-left` / `fx-slide-right` | `FX.slideIn()` | Horizontal slide from left or right |
+| Parallax | `fx-parallax` | `FX.parallax()` | Scrub-based Y-shift on scroll |
 
 ---
 
@@ -381,6 +386,251 @@ Same as Clip Up but reveals from the top edge downward.
 
 ---
 
+## Type Writer
+
+Reveals text character by character using GSAP's SplitText, simulating a typewriter effect. Each character appears one at a time with no easing for a mechanical feel.
+
+**Class:** `fx-type-writer-pl` | `fx-type-writer-st` | `fx-type-writer`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `0.05s` (per character) |
+| Ease | `none` |
+| Stagger | `0.03s` |
+| From Opacity | `0` |
+
+**Usage:**
+
+```html
+<!-- Hero heading types out on page load -->
+<h1 class="fx-type-writer-pl">Welcome to the future</h1>
+
+<!-- Tagline types on scroll -->
+<p class="fx-type-writer-st">Building the web, one pixel at a time.</p>
+```
+
+**Best for:** Headings, taglines, hero text — creates a terminal or editorial feel.
+
+**How it works internally:**
+1. SplitText splits the element's text into individual characters
+2. All characters start invisible (`opacity: 0`)
+3. GSAP staggers each character to `opacity: 1` with `ease: "none"` for a sharp on/off reveal
+4. The stagger timing (0.03s) controls the typing speed
+5. After completion, inline styles are cleaned up
+
+**JS override:** Control the typing speed:
+```js
+FX.typeWriter(el, { stagger: 0.06 }); // Slower typing
+FX.typeWriter(el, { stagger: 0.01 }); // Rapid typing
+```
+
+---
+
+## Draw SVG
+
+Animates SVG path strokes using `stroke-dashoffset`, drawing the path from invisible to fully rendered. Works on any SVG element that contains `<path>`, `<line>`, `<circle>`, `<rect>`, `<polyline>`, or `<polygon>` elements with a visible stroke.
+
+**Class:** `fx-draw-svg-pl` | `fx-draw-svg-st` | `fx-draw-svg` | `fx-draw-svg-scrub`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `2s` |
+| Ease | `power2.inOut` |
+
+**Usage:**
+
+```html
+<!-- Icon draws on page load -->
+<svg class="fx-draw-svg-pl" viewBox="0 0 100 100">
+    <path d="M10,50 Q50,10 90,50 Q50,90 10,50" stroke="#000" fill="none" />
+</svg>
+
+<!-- Illustration draws on scroll -->
+<svg class="fx-draw-svg-st" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="80" stroke="#333" fill="none" stroke-width="2" />
+    <path d="M60,100 L90,130 L140,80" stroke="#333" fill="none" stroke-width="2" />
+</svg>
+```
+
+**Best for:** Icons, illustrations, decorative SVGs, logo reveals.
+
+**How it works internally:**
+1. Finds all stroke-based child elements (`path`, `line`, `circle`, etc.)
+2. Measures each element's total stroke length via `getTotalLength()`
+3. Sets `stroke-dasharray` and `stroke-dashoffset` to the full length (hiding the stroke)
+4. GSAP animates `stroke-dashoffset` to `0`, revealing the drawn path
+5. Multiple paths within the same SVG are staggered slightly
+
+**Scrub mode:** Use `fx-draw-svg-scrub` to draw the SVG progressively as the user scrolls — the stroke follows the scroll position instead of playing once:
+
+```html
+<svg class="fx-draw-svg-scrub" viewBox="0 0 200 200">
+    <circle cx="100" cy="100" r="80" stroke="#333" fill="none" stroke-width="2" />
+</svg>
+```
+
+**JS override:** Control draw speed or enable scrub programmatically:
+```js
+FX.drawSVG(el, { duration: 3 }); // Slower draw
+FX.drawSVG(el, { scrub: 0.6 });  // Scrub-based draw
+```
+
+**Note:** The SVG paths must have a `stroke` set and `fill: none` (or a separate fill) for the drawing effect to be visible. If the path has a fill and no stroke, nothing will appear to animate.
+
+---
+
+## Split Words
+
+Splits text into individual words using GSAP's SplitText, then fades and slides each word up with a stagger. More granular than Text Reveal (which splits by lines) but less granular than Type Writer (which splits by characters).
+
+**Class:** `fx-split-words-pl` | `fx-split-words-st` | `fx-split-words`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `0.8s` |
+| Ease | `power3.out` |
+| Stagger | `0.05s` |
+| From Y | `20px` |
+| From Opacity | `0` |
+
+**Usage:**
+
+```html
+<!-- Quote reveals word by word on scroll -->
+<blockquote class="fx-split-words-st">
+    Design is not just what it looks like, design is how it works.
+</blockquote>
+
+<!-- Paragraph with word-by-word entrance on load -->
+<p class="fx-split-words-pl">
+    We build digital experiences that inspire and engage.
+</p>
+```
+
+**Best for:** Paragraphs, quotes, descriptions — flowing, readable text reveal.
+
+**How it works internally:**
+1. SplitText splits the element's text into individual words
+2. Each word starts at `opacity: 0` and `y: 20px` (below its final position)
+3. GSAP staggers each word to `opacity: 1` and `y: 0`
+4. The stagger timing (0.05s) creates a smooth wave effect across the text
+5. After completion, inline transforms are cleaned up
+
+**JS override:** Control the stagger and slide distance:
+```js
+FX.splitWords(el, { stagger: 0.08, y: 30 }); // Slower, more dramatic
+FX.splitWords(el, { stagger: 0.02 }); // Rapid word reveal
+```
+
+---
+
+## Slide In
+
+Slides the element in horizontally from the left or right edge. Use `fx-slide-left` for an entrance from the left or `fx-slide-right` for an entrance from the right.
+
+**Class:** `fx-slide-left-pl` | `fx-slide-left-st` | `fx-slide-left` | `fx-slide-right-pl` | `fx-slide-right-st` | `fx-slide-right`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Duration | `1s` |
+| Ease | `power3.out` |
+| From X | `100px` (right) or `-100px` (left) |
+| From Opacity | `0` |
+
+**Usage:**
+
+```html
+<!-- Image slides in from the left on scroll -->
+<img src="feature.jpg" class="fx-slide-left-st" />
+
+<!-- Card slides in from the right on scroll -->
+<div class="card fx-slide-right-st">
+    <h3>Our Process</h3>
+    <p>Step by step, we build your vision.</p>
+</div>
+
+<!-- Side-by-side layout with opposing directions -->
+<div class="two-col">
+    <div class="col fx-slide-left-st">Left content</div>
+    <div class="col fx-slide-right-st">Right content</div>
+</div>
+```
+
+**Best for:** Cards, images, side-by-side layouts, feature sections.
+
+**JS override:** Control the slide distance and direction:
+```js
+FX.slideIn(el, { direction: 'left', x: 200 });  // Slide from further left
+FX.slideIn(el, { direction: 'right', x: 150 }); // Slide from further right
+```
+
+---
+
+## Parallax
+
+Scrub-based vertical shift tied to scroll position. As the user scrolls, the element shifts along the Y axis, creating a depth illusion. Like Tilt In, this effect is always scroll-linked — there is no `-pl` (page load) variant.
+
+**Class:** `fx-parallax-st` | `fx-parallax`
+
+**Defaults:**
+
+| Property | Value |
+|----------|-------|
+| Y Shift | `50px` (shifts from `-50` to `+50`) |
+| Scrub | `true` |
+
+**Usage:**
+
+```html
+<!-- Background image shifts on scroll -->
+<img src="bg-pattern.jpg" class="fx-parallax-st" />
+
+<!-- Decorative element creates depth -->
+<div class="floating-shape fx-parallax-st"></div>
+
+<!-- Combine with a container for layered depth -->
+<section class="hero">
+    <img src="hero-bg.jpg" class="fx-parallax-st" />
+    <h1 class="fx-text-reveal-st">Layered depth</h1>
+</section>
+```
+
+**Best for:** Background images, decorative elements, layered hero sections.
+
+**How it works internally:**
+1. GSAP creates a `fromTo` tween: `y: -50` to `y: 50` (based on the `y` default)
+2. ScrollTrigger is configured with `scrub: true` for direct 1:1 scroll linkage
+3. The scroll range covers the element's full visibility window
+4. No opacity change — the element is always visible, only its position shifts
+
+**Per-element speed:** Use `fx-y-[value]` to control parallax intensity per element:
+
+```html
+<!-- Subtle shift -->
+<img src="bg.jpg" class="fx-parallax-st fx-y-[20]" />
+
+<!-- Dramatic shift -->
+<img src="fg.jpg" class="fx-parallax-st fx-y-[80]" />
+```
+
+**JS override:** Control the shift amount:
+```js
+FX.parallax(el, { y: 100 }); // Stronger parallax (-100 to +100)
+FX.parallax(el, { y: 20 });  // Subtle parallax (-20 to +20)
+```
+
+**Note:** Like Tilt In, this effect has no page-load variant since it requires scroll position to drive the animation. The element moves in both directions — upward above center, downward below center.
+
+---
+
 ## All Defaults at a Glance
 
 | Effect | Duration | Ease | Stagger | Unique Props |
@@ -395,5 +645,10 @@ Same as Clip Up but reveals from the top edge downward.
 | clipUp | 1s | power3.inOut | — | clipPath: inset(100% 0 0 0) |
 | clipDown | 1s | power3.inOut | — | clipPath: inset(0 0 100% 0) |
 | tiltIn | 1.4s | power3.out | — | rotationX: 45, scale: 0.8, scrub: 0.6 |
+| typeWriter | 0.05s | none | 0.03s | SplitText chars, per-character reveal |
+| drawSVG | 2s | power2.inOut | — | stroke-dashoffset animation |
+| splitWords | 0.8s | power3.out | 0.05s | SplitText words, y: 20px |
+| slideIn | 1s | power3.out | — | x: 100 (left/right direction) |
+| parallax | — | — | — | y: 50, scrub: true |
 
-All effects except clipUp/clipDown and tiltIn animate `opacity` from `0` to `1`. Tilt In animates opacity from `0` but is scrub-based (tied to scroll position).
+All effects except clipUp/clipDown, tiltIn, and parallax animate `opacity` from `0` to `1`. Tilt In animates opacity from `0` but is scrub-based (tied to scroll position). Parallax has no opacity change — only Y position shifts.

@@ -74,6 +74,19 @@
          *   }
          */
         tagMap: null,
+
+        /** Disable all animations on mobile (window.innerWidth <= mobileBreakpoint). */
+        disableMobile: false,
+        mobileBreakpoint: 768,
+
+        /** Multiply all animation durations globally (e.g. 0.5 = half speed, 2 = double). */
+        speedMultiplier: 1,
+
+        /** Skip all animations when OS prefers-reduced-motion is enabled. */
+        respectReducedMotion: true,
+
+        /** CSS selector string — matching elements are never animated. */
+        excludeSelectors: '',
     };
 
     // ── Defaults ────────────────────────────────
@@ -89,6 +102,11 @@
         clipUp:      { duration: 1,   ease: 'power3.inOut' },
         clipDown:    { duration: 1,   ease: 'power3.inOut' },
         tiltIn:      { duration: 1.4, ease: 'power3.out' },
+        typeWriter:  { duration: 0.05, ease: 'none', stagger: 0.03 },
+        drawSVG:     { duration: 2,   ease: 'power2.inOut' },
+        parallax:    { duration: 1,   ease: 'none' },
+        splitWords:  { duration: 0.8, ease: 'power3.out', stagger: 0.05 },
+        slideIn:     { duration: 1,   ease: 'power3.out' },
     };
 
     // ── Helpers ──────────────────────────────────
@@ -108,8 +126,12 @@
 
     function resolveOptions(el, effectName, overrides) {
         var d = EFFECT_DEFAULTS[effectName];
+        var dur = getClassModifier(el, 'duration', overrides.duration != null ? overrides.duration : d.duration);
+        if (config.speedMultiplier && config.speedMultiplier !== 1) {
+            dur = dur * config.speedMultiplier;
+        }
         return {
-            duration: getClassModifier(el, 'duration', overrides.duration != null ? overrides.duration : d.duration),
+            duration: dur,
             ease:     getClassModifier(el, 'ease',     overrides.ease     != null ? overrides.ease     : d.ease),
             stagger:  getClassModifier(el, 'stagger',  overrides.stagger  != null ? overrides.stagger  : (d.stagger || 0)),
             delay:    getClassModifier(el, 'delay',     overrides.delay    != null ? overrides.delay    : 0),
@@ -348,6 +370,137 @@
         });
     }
 
+    function typeWriter(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'typeWriter', opts);
+
+        var split = new SplitText(el, { type: 'chars' });
+        gsap.set(split.chars, { opacity: 0 });
+
+        var tweenVars = {
+            opacity: 1,
+            duration: o.duration,
+            ease: o.ease,
+            stagger: o.stagger,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.to(split.chars, tweenVars);
+    }
+
+    function drawSVG(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'drawSVG', opts);
+
+        var paths = el.tagName === 'path' || el.tagName === 'line' || el.tagName === 'circle' || el.tagName === 'polyline'
+            ? [el]
+            : el.querySelectorAll('path, line, circle, polyline, polygon, ellipse, rect');
+
+        if (!paths.length) return;
+
+        Array.prototype.forEach.call(paths, function(path) {
+            if (typeof path.getTotalLength === 'function') {
+                var len = path.getTotalLength();
+                gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+            }
+        });
+
+        // Scrub mode: SVG draws as user scrolls (class fx-scrub-[0.6] or opts.scrub)
+        var scrubVal = getClassModifier(el, 'scrub', opts.scrub != null ? opts.scrub : null);
+        if (scrubVal !== null) {
+            gsap.to(paths, {
+                strokeDashoffset: 0,
+                ease: o.ease,
+                scrollTrigger: {
+                    trigger: (opts.scrollTrigger && opts.scrollTrigger.trigger) || el,
+                    start: config.scrollStart || 'top 85%',
+                    end: opts.end || 'top 20%',
+                    scrub: scrubVal === true || scrubVal === 'true' ? true : scrubVal,
+                },
+            });
+            return;
+        }
+
+        var tweenVars = {
+            strokeDashoffset: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.to(paths, tweenVars);
+    }
+
+    function parallax(el, opts) {
+        opts = opts || {};
+        // Read y from modifier class fx-y-[80] or opts or default 50
+        var yShift = getClassModifier(el, 'y', opts.y != null ? opts.y : 50);
+
+        gsap.fromTo(el, {
+            y: -yShift,
+        }, {
+            y: yShift,
+            ease: 'none',
+            scrollTrigger: {
+                trigger: (opts.scrollTrigger && opts.scrollTrigger.trigger) || el,
+                start: config.scrollStart || 'top 85%',
+                end: opts.end || 'bottom top',
+                scrub: opts.scrub != null ? opts.scrub : true,
+            },
+        });
+    }
+
+    function splitWords(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'splitWords', opts);
+
+        var split = new SplitText(el, { type: 'words' });
+
+        var tweenVars = {
+            y: opts.y != null ? opts.y : 30,
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            stagger: o.stagger,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(split.words, tweenVars);
+    }
+
+    function slideIn(el, opts) {
+        opts = opts || {};
+        var o = resolveOptions(el, 'slideIn', opts);
+        var direction = opts.direction || 'left';
+        var xVal = opts.x != null ? opts.x : 100;
+
+        var tweenVars = {
+            x: direction === 'left' ? -xVal : xVal,
+            opacity: 0,
+            duration: o.duration,
+            ease: o.ease,
+            delay: o.delay,
+        };
+
+        if (opts.trigger === 'scroll' || opts.scrollTrigger) {
+            tweenVars.scrollTrigger = buildScrollTrigger(el, opts.scrollTrigger || {});
+        }
+
+        gsap.from(el, tweenVars);
+    }
+
     // ── Class-to-effect mapping ─────────────────
 
     var effects = {
@@ -360,6 +513,11 @@
         'fx-blur-in':     blurIn,
         'fx-clip-up':     clipUp,
         'fx-clip-down':   clipDown,
+        'fx-type-writer': typeWriter,
+        'fx-draw-svg':    drawSVG,
+        'fx-split-words': splitWords,
+        'fx-slide-left':  function(el, opts) { opts = opts || {}; opts.direction = 'left'; slideIn(el, opts); },
+        'fx-slide-right': function(el, opts) { opts = opts || {}; opts.direction = 'right'; slideIn(el, opts); },
     };
 
     var effectsByName = {
@@ -373,6 +531,11 @@
         clipUp: clipUp,
         clipDown: clipDown,
         tiltIn: tiltIn,
+        typeWriter: typeWriter,
+        drawSVG: drawSVG,
+        parallax: parallax,
+        splitWords: splitWords,
+        slideIn: slideIn,
     };
 
     // ── Helpers ──────────────────────────────────
@@ -403,6 +566,11 @@
         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
     }
 
+    function isExcluded(el) {
+        if (!config.excludeSelectors) return false;
+        try { return el.matches(config.excludeSelectors); } catch (e) { return false; }
+    }
+
     // ── Init ────────────────────────────────────
 
     function init() {
@@ -414,6 +582,7 @@
             // 1. Page-load variant: .fx-<name>-pl
             var plGroups = groupByParent(document.querySelectorAll('.' + name + '-pl'));
             plGroups.forEach(function (group) {
+                group = group.filter(function (el) { return !isExcluded(el); });
                 group.forEach(function (el, i) {
                     fn(el, { delay: i * 0.15 });
                     processed.add(el);
@@ -426,6 +595,7 @@
             var stEls = document.querySelectorAll('.' + name + '-st');
             var stGroups = groupByParent(stEls);
             stGroups.forEach(function (group) {
+                group = group.filter(function (el) { return !isExcluded(el); });
                 group.forEach(function (el, i) {
                     fn(el, {
                         trigger: 'scroll',
@@ -442,7 +612,7 @@
             if (config.sectionSelector) {
                 document.querySelectorAll(config.sectionSelector).forEach(function (section) {
                     var bareEls = Array.from(section.querySelectorAll('.' + name))
-                        .filter(function (el) { return !processed.has(el); });
+                        .filter(function (el) { return !processed.has(el) && !isExcluded(el); });
                     if (bareEls.length === 0) return;
 
                     var groups = groupByParent(bareEls);
@@ -460,11 +630,22 @@
             }
         });
 
-        // 4. fx-tilt-in — scrub-based 3D perspective (always scroll-linked)
-        //    Processed before tagMap so tilt elements aren't grabbed by tagMap first.
+        // 4. Scrub-based effects — always scroll-linked, processed before tagMap.
         document.querySelectorAll('.fx-tilt-in-st, .fx-tilt-in-pl, .fx-tilt-in').forEach(function (el) {
-            if (!processed.has(el)) {
+            if (!processed.has(el) && !isExcluded(el)) {
                 tiltIn(el);
+                processed.add(el);
+            }
+        });
+        document.querySelectorAll('.fx-parallax-st, .fx-parallax-pl, .fx-parallax').forEach(function (el) {
+            if (!processed.has(el) && !isExcluded(el)) {
+                parallax(el);
+                processed.add(el);
+            }
+        });
+        document.querySelectorAll('.fx-draw-svg-scrub').forEach(function (el) {
+            if (!processed.has(el) && !isExcluded(el)) {
+                drawSVG(el, { scrub: getClassModifier(el, 'scrub', 0.6) });
                 processed.add(el);
             }
         });
@@ -478,7 +659,7 @@
                     if (!fn) return;
 
                     var els = Array.from(section.querySelectorAll(selector))
-                        .filter(function (el) { return !processed.has(el); });
+                        .filter(function (el) { return !processed.has(el) && !isExcluded(el); });
                     if (els.length === 0) return;
 
                     var groups = groupByParent(els);
@@ -544,10 +725,26 @@
         if (pre.scrollStart !== undefined) config.scrollStart = pre.scrollStart;
         if (pre.scrollOnce !== undefined) config.scrollOnce = pre.scrollOnce;
         if (pre.tagMap !== undefined) config.tagMap = pre.tagMap;
+        if (pre.disableMobile !== undefined) config.disableMobile = pre.disableMobile;
+        if (pre.mobileBreakpoint !== undefined) config.mobileBreakpoint = pre.mobileBreakpoint;
+        if (pre.speedMultiplier !== undefined) config.speedMultiplier = pre.speedMultiplier;
+        if (pre.respectReducedMotion !== undefined) config.respectReducedMotion = pre.respectReducedMotion;
+        if (pre.excludeSelectors !== undefined) config.excludeSelectors = pre.excludeSelectors;
     }
 
     function boot() {
         applyPreConfig();
+
+        // Skip animations if OS reduced motion is enabled
+        if (config.respectReducedMotion && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+
+        // Skip animations on mobile
+        if (config.disableMobile && window.innerWidth <= config.mobileBreakpoint) {
+            return;
+        }
+
         init();
     }
 
@@ -571,6 +768,11 @@
         clipUp: clipUp,
         clipDown: clipDown,
         tiltIn: tiltIn,
+        typeWriter: typeWriter,
+        drawSVG: drawSVG,
+        parallax: parallax,
+        splitWords: splitWords,
+        slideIn: slideIn,
         init: init,
     };
 })();

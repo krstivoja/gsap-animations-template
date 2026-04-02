@@ -3,7 +3,7 @@
  * Plugin Name: Fancoolo FX
  * Plugin URI: https://github.com/krstivoja/fancoolo-fx
  * Description: A class-driven GSAP animation wrapper. Add CSS classes in Gutenberg and get animations — no JavaScript needed.
- * Version: 1.4.0
+ * Version: 1.5.0
  * Author: Fancoolo
  * Author URI: https://github.com/krstivoja
  * License: ISC
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FANCOOLO_FX_VERSION', '1.4.0' );
+define( 'FANCOOLO_FX_VERSION', '1.5.0' );
 define( 'FANCOOLO_FX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FANCOOLO_FX_URL', plugin_dir_url( __FILE__ ) );
 
@@ -27,6 +27,11 @@ function fancoolo_fx_get_settings() {
 		'scroll_once'      => '1',
 		'section_selector' => 'section',
 		'debug_markers'    => '0',
+		'disable_mobile'   => '0',
+		'mobile_breakpoint' => '768',
+		'speed_multiplier' => '1',
+		'respect_reduced_motion' => '1',
+		'exclude_selectors' => '',
 		'tag_map'          => array(),
 	) );
 }
@@ -74,9 +79,14 @@ function fancoolo_fx_enqueue_scripts() {
 	// 5. Inject settings as __FX_CONFIG__ before fx.js
 	$s = fancoolo_fx_get_settings();
 	$config = array(
-		'scrollStart'     => $s['scroll_start'],
-		'scrollOnce'      => (bool) $s['scroll_once'],
-		'sectionSelector' => $s['section_selector'],
+		'scrollStart'           => $s['scroll_start'],
+		'scrollOnce'            => (bool) $s['scroll_once'],
+		'sectionSelector'       => $s['section_selector'],
+		'disableMobile'         => (bool) $s['disable_mobile'],
+		'mobileBreakpoint'      => (int) $s['mobile_breakpoint'],
+		'speedMultiplier'       => (float) $s['speed_multiplier'],
+		'respectReducedMotion'  => (bool) $s['respect_reduced_motion'],
+		'excludeSelectors'      => $s['exclude_selectors'],
 	);
 
 	// Build tagMap object from saved rows: { 'h1,h2': 'textReveal', 'img': 'reveal' }
@@ -228,6 +238,11 @@ function fancoolo_fx_handle_save() {
 		'scroll_once'      => isset( $_POST['fancoolo_fx_scroll_once'] ) ? '1' : '0',
 		'section_selector' => sanitize_text_field( $_POST['fancoolo_fx_section_selector'] ?? 'section' ),
 		'debug_markers'    => isset( $_POST['fancoolo_fx_debug_markers'] ) ? '1' : '0',
+		'disable_mobile'   => isset( $_POST['fancoolo_fx_disable_mobile'] ) ? '1' : '0',
+		'mobile_breakpoint' => sanitize_text_field( $_POST['fancoolo_fx_mobile_breakpoint'] ?? '768' ),
+		'speed_multiplier' => sanitize_text_field( $_POST['fancoolo_fx_speed_multiplier'] ?? '1' ),
+		'respect_reduced_motion' => isset( $_POST['fancoolo_fx_respect_reduced_motion'] ) ? '1' : '0',
+		'exclude_selectors' => sanitize_text_field( $_POST['fancoolo_fx_exclude_selectors'] ?? '' ),
 		'tag_map'          => $tag_map,
 	);
 	update_option( 'fancoolo_fx_settings', $settings );
@@ -296,6 +311,10 @@ function fancoolo_fx_render_admin_page() {
 					<input type="text" id="ffx-section-selector" name="fancoolo_fx_section_selector" value="<?php echo esc_attr( $s['section_selector'] ); ?>" placeholder="section">
 					<p class="ffx-hint">Containers for bare-class triggering</p>
 
+					<label for="ffx-exclude-selectors">Exclude Selectors</label>
+					<input type="text" id="ffx-exclude-selectors" name="fancoolo_fx_exclude_selectors" value="<?php echo esc_attr( $s['exclude_selectors'] ); ?>" placeholder=".no-fx, .wp-block-navigation">
+					<p class="ffx-hint">Elements matching these selectors are never animated</p>
+
 					<hr>
 
 					<div class="ffx-toggle">
@@ -310,37 +329,74 @@ function fancoolo_fx_render_admin_page() {
 					</div>
 					<p class="ffx-hint">Show ScrollTrigger markers (admin only, visitors won't see them)</p>
 
-						<hr>
-
-						<h3>Global Tag Map</h3>
-						<p class="ffx-hint" style="margin-top: -8px;">Auto-animate elements by tag inside sections. No classes needed.</p>
-
-						<div id="ffx-tagmap-rows">
-							<?php foreach ( $s['tag_map'] as $i => $row ) : ?>
-							<div class="ffx-tagmap-row">
-								<input type="text" name="fancoolo_fx_tag_map[<?php echo $i; ?>][selector]" value="<?php echo esc_attr( $row['selector'] ); ?>" placeholder="h1,h2,h3">
-								<select name="fancoolo_fx_tag_map[<?php echo $i; ?>][effect]">
-									<?php foreach ( array(
-										'textReveal' => 'Text Reveal',
-										'reveal'     => 'Reveal',
-										'spinReveal' => 'Spin Reveal',
-										'bgReveal'   => 'BG Reveal',
-										'scaleIn'    => 'Scale In',
-										'fadeIn'     => 'Fade In',
-										'blurIn'     => 'Blur In',
-										'clipUp'     => 'Clip Up',
-										'clipDown'   => 'Clip Down',
-										'tiltIn'     => 'Tilt In',
-									) as $value => $label ) : ?>
-										<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $row['effect'], $value ); ?>><?php echo esc_html( $label ); ?></option>
-									<?php endforeach; ?>
-								</select>
-								<button type="button" class="ffx-tagmap-remove" title="Remove">&times;</button>
-							</div>
-							<?php endforeach; ?>
-						</div>
-						<button type="button" id="ffx-tagmap-add" class="button button-small">+ Add Rule</button>
+					<div class="ffx-toggle">
+						<input type="checkbox" id="ffx-disable-mobile" name="fancoolo_fx_disable_mobile" value="1" <?php checked( $s['disable_mobile'], '1' ); ?>>
+						<label for="ffx-disable-mobile">Disable on mobile</label>
 					</div>
+					<div class="ffx-mobile-breakpoint" style="<?php echo $s['disable_mobile'] === '1' ? '' : 'display:none;'; ?>">
+						<label for="ffx-mobile-breakpoint">Breakpoint (px)</label>
+						<input type="text" id="ffx-mobile-breakpoint" name="fancoolo_fx_mobile_breakpoint" value="<?php echo esc_attr( $s['mobile_breakpoint'] ); ?>" placeholder="768" style="width: 80px; margin-bottom: 12px;">
+					</div>
+
+					<div class="ffx-toggle">
+						<input type="checkbox" id="ffx-respect-reduced-motion" name="fancoolo_fx_respect_reduced_motion" value="1" <?php checked( $s['respect_reduced_motion'], '1' ); ?>>
+						<label for="ffx-respect-reduced-motion">Respect reduced motion</label>
+					</div>
+					<p class="ffx-hint">Skip animations when OS has reduced motion enabled</p>
+
+					<label for="ffx-speed-multiplier">Speed Multiplier</label>
+					<select id="ffx-speed-multiplier" name="fancoolo_fx_speed_multiplier" style="width: 100%; margin-bottom: 12px;">
+						<?php foreach ( array( '0.5' => '0.5x (faster)', '0.75' => '0.75x', '1' => '1x (default)', '1.25' => '1.25x', '1.5' => '1.5x', '2' => '2x (slower)' ) as $val => $lbl ) : ?>
+							<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $s['speed_multiplier'], $val ); ?>><?php echo esc_html( $lbl ); ?></option>
+						<?php endforeach; ?>
+					</select>
+
+					<hr>
+
+					<h3>Global Tag Map</h3>
+					<p class="ffx-hint" style="margin-top: -8px;">Auto-animate elements by tag inside sections. No classes needed.</p>
+
+					<div id="ffx-tagmap-rows">
+						<?php foreach ( $s['tag_map'] as $i => $row ) : ?>
+						<div class="ffx-tagmap-row">
+							<input type="text" name="fancoolo_fx_tag_map[<?php echo $i; ?>][selector]" value="<?php echo esc_attr( $row['selector'] ); ?>" placeholder="h1,h2,h3">
+							<select name="fancoolo_fx_tag_map[<?php echo $i; ?>][effect]">
+								<?php foreach ( array(
+									'textReveal' => 'Text Reveal',
+									'reveal'     => 'Reveal',
+									'spinReveal' => 'Spin Reveal',
+									'bgReveal'   => 'BG Reveal',
+									'scaleIn'    => 'Scale In',
+									'fadeIn'     => 'Fade In',
+									'blurIn'     => 'Blur In',
+									'clipUp'     => 'Clip Up',
+									'clipDown'   => 'Clip Down',
+									'tiltIn'     => 'Tilt In',
+									'typeWriter' => 'Type Writer',
+									'drawSVG'    => 'Draw SVG',
+									'parallax'   => 'Parallax',
+									'splitWords' => 'Split Words',
+									'slideIn'    => 'Slide In',
+								) as $value => $label ) : ?>
+									<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $row['effect'], $value ); ?>><?php echo esc_html( $label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							<button type="button" class="ffx-tagmap-remove" title="Remove">&times;</button>
+						</div>
+						<?php endforeach; ?>
+					</div>
+					<button type="button" id="ffx-tagmap-add" class="button button-small">+ Add Rule</button>
+
+					<hr>
+
+					<h3>Import / Export</h3>
+					<div class="ffx-import-export">
+						<button type="button" id="ffx-export" class="button button-small" style="width: 100%; margin-bottom: 6px;">Export Settings</button>
+						<button type="button" id="ffx-import-btn" class="button button-small" style="width: 100%; margin-bottom: 6px;">Import Settings</button>
+						<input type="file" id="ffx-import-file" accept=".json" style="display: none;">
+						<button type="button" id="ffx-reset" class="button button-small" style="width: 100%; color: #a00;">Reset to Defaults</button>
+					</div>
+				</div>
 			</form>
 		</div>
 
@@ -357,6 +413,11 @@ function fancoolo_fx_render_admin_page() {
 					<tr><td><code>FX.config.sectionSelector</code></td><td><code>'section'</code></td><td>Containers for bare-class and tagMap triggering</td></tr>
 					<tr><td><code>FX.config.scrollStart</code></td><td><code>'top 85%'</code></td><td>When scroll animations trigger (GSAP ScrollTrigger start format)</td></tr>
 					<tr><td><code>FX.config.scrollOnce</code></td><td><code>true</code></td><td>Play once or replay on every scroll</td></tr>
+					<tr><td><code>FX.config.excludeSelectors</code></td><td><code>''</code></td><td>CSS selectors for elements to never animate</td></tr>
+					<tr><td><code>FX.config.disableMobile</code></td><td><code>false</code></td><td>Skip all animations on mobile</td></tr>
+					<tr><td><code>FX.config.mobileBreakpoint</code></td><td><code>768</code></td><td>Width threshold for mobile detection (px)</td></tr>
+					<tr><td><code>FX.config.speedMultiplier</code></td><td><code>1</code></td><td>Global duration multiplier (0.5 = faster, 2 = slower)</td></tr>
+					<tr><td><code>FX.config.respectReducedMotion</code></td><td><code>true</code></td><td>Skip animations when OS prefers reduced motion</td></tr>
 				</tbody>
 			</table>
 
@@ -376,6 +437,11 @@ function fancoolo_fx_render_admin_page() {
 					<tr><td><code>FX.clipUp(el, opts)</code></td><td>Clip-path wipe from bottom</td></tr>
 					<tr><td><code>FX.clipDown(el, opts)</code></td><td>Clip-path wipe from top</td></tr>
 					<tr><td><code>FX.tiltIn(el, opts)</code></td><td>3D perspective reveal (scrub-based)</td></tr>
+					<tr><td><code>FX.typeWriter(el, opts)</code></td><td>Character-by-character typing reveal</td></tr>
+					<tr><td><code>FX.drawSVG(el, opts)</code></td><td>SVG stroke drawing animation</td></tr>
+					<tr><td><code>FX.parallax(el, opts)</code></td><td>Scroll-linked Y parallax shift</td></tr>
+					<tr><td><code>FX.splitWords(el, opts)</code></td><td>Word-by-word fade and slide up</td></tr>
+					<tr><td><code>FX.slideIn(el, opts)</code></td><td>Horizontal slide from left or right</td></tr>
 					<tr><td><code>FX.init()</code></td><td>Re-scan DOM — call after changing any config</td></tr>
 				</tbody>
 			</table>
@@ -490,10 +556,43 @@ FX.init();</pre>
 			<div class="ffx-class-row"><code data-copy>fx-clip-down-st</code><span class="ffx-desc">Scroll triggered</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-clip-down</code><span class="ffx-desc">Auto triggered inside a section</span></div>
 
+			<!-- Type Writer -->
+			<div class="ffx-group-title">Type Writer</div>
+			<div class="ffx-class-row"><code data-copy>fx-type-writer-pl</code><span class="ffx-desc">Page load — character-by-character typing</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-type-writer-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-type-writer</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Draw SVG -->
+			<div class="ffx-group-title">Draw SVG</div>
+			<div class="ffx-class-row"><code data-copy>fx-draw-svg-pl</code><span class="ffx-desc">Page load — SVG stroke drawing animation</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-draw-svg-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-draw-svg</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-draw-svg-scrub</code><span class="ffx-desc">Draws progressively as you scroll (scrub-based)</span></div>
+
+			<!-- Split Words -->
+			<div class="ffx-group-title">Split Words</div>
+			<div class="ffx-class-row"><code data-copy>fx-split-words-pl</code><span class="ffx-desc">Page load — word-by-word fade and slide</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-split-words-st</code><span class="ffx-desc">Scroll triggered</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-split-words</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Slide In -->
+			<div class="ffx-group-title">Slide In</div>
+			<div class="ffx-class-row"><code data-copy>fx-slide-left-pl</code><span class="ffx-desc">Page load — slide in from left</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-slide-left-st</code><span class="ffx-desc">Scroll triggered — from left</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-slide-left</code><span class="ffx-desc">Auto triggered inside a section — from left</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-slide-right-pl</code><span class="ffx-desc">Page load — slide in from right</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-slide-right-st</code><span class="ffx-desc">Scroll triggered — from right</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-slide-right</code><span class="ffx-desc">Auto triggered inside a section — from right</span></div>
+
 			<!-- Tilt In -->
 			<div class="ffx-group-title">Tilt In <span style="font-weight:normal;color:#646970;font-size:12px;">(scrub — tied to scroll position)</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-tilt-in-st</code><span class="ffx-desc">3D perspective reveal linked to scroll</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-tilt-in</code><span class="ffx-desc">Auto triggered inside a section</span></div>
+
+			<!-- Parallax -->
+			<div class="ffx-group-title">Parallax <span style="font-weight:normal;color:#646970;font-size:12px;">(scrub — tied to scroll position)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-parallax-st</code><span class="ffx-desc">Parallax Y-shift linked to scroll</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-parallax</code><span class="ffx-desc">Auto triggered inside a section</span></div>
 
 			<!-- Stagger All -->
 			<div class="ffx-group-title" style="margin-top: 20px;">Stagger Children <span style="font-weight:normal;color:#646970;font-size:12px;">(pair with an effect class)</span></div>
@@ -508,6 +607,8 @@ FX.init();</pre>
 			<div class="ffx-class-row"><code data-copy>fx-stagger-[0.25]</code><span class="ffx-desc">Delay between staggered siblings</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-ease-[power2.inOut]</code><span class="ffx-desc">GSAP easing function</span></div>
 			<div class="ffx-class-row"><code data-copy>fx-start-[top center]</code><span class="ffx-desc">Scroll trigger start position</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-y-[80]</code><span class="ffx-desc">Parallax Y-shift intensity (parallax only)</span></div>
+			<div class="ffx-class-row"><code data-copy>fx-scrub-[0.6]</code><span class="ffx-desc">Scrub smoothing (drawSVG scrub mode)</span></div>
 		</div>
 
 		<p style="margin-top: 24px; color: #646970;">

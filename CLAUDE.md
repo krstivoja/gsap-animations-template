@@ -24,6 +24,11 @@ A class-driven GSAP animation wrapper for WordPress and static sites. Users add 
 | Clip Up | `clipUp()` | Clip-path wipe from bottom |
 | Clip Down | `clipDown()` | Clip-path wipe from top |
 | Tilt In | `tiltIn()` | 3D perspective reveal, **scrub-based** (tied to scroll position) |
+| Type Writer | `typeWriter()` | SplitText → chars → staggered opacity reveal |
+| Draw SVG | `drawSVG()` | stroke-dashoffset animation for SVG paths |
+| Parallax | `parallax()` | Scrub-based Y-shift on scroll |
+| Split Words | `splitWords()` | SplitText → words → staggered fade + slide up |
+| Slide In | `slideIn()` | Horizontal slide from left or right |
 
 ### Three trigger modes
 1. **Explicit suffix**: `.fx-{effect}-pl` (page load) or `.fx-{effect}-st` (scroll trigger)
@@ -48,9 +53,14 @@ A class-driven GSAP animation wrapper for WordPress and static sites. Users add 
 - `scrollStart` (default: `'top 85%'`) — when scroll animations trigger
 - `scrollOnce` (default: `true`) — play once or replay on every scroll
 - `tagMap` (default: `null`) — map of CSS selectors → effect names for zero-class animation
+- `excludeSelectors` (default: `''`) — CSS selectors for elements to never animate
+- `disableMobile` (default: `false`) — skip all animations on mobile
+- `mobileBreakpoint` (default: `768`) — width threshold for mobile detection
+- `speedMultiplier` (default: `1`) — global duration multiplier (0.5 = faster, 2 = slower)
+- `respectReducedMotion` (default: `true`) — skip animations when OS prefers reduced motion
 
 ### Pre-configuration
-Set `window.__FX_CONFIG__` before the FX script loads to configure `sectionSelector`, `scrollStart`, `scrollOnce`, and `tagMap` without needing JS after load.
+Set `window.__FX_CONFIG__` before the FX script loads to configure all options without needing JS after load.
 
 ### Auto-stagger
 Elements with the same `.fx-*` class grouped under the same parent are staggered automatically (0.15s gap).
@@ -60,7 +70,7 @@ init() uses a `processed` Set to avoid double-animating:
 1. `-pl` classes (page load)
 2. `-st` classes (scroll trigger — element triggers itself)
 3. Bare classes in sections (element triggers itself, section only scopes)
-4. **tiltIn** (scrub-based, processed before tagMap so images aren't grabbed by tagMap first)
+4. **Scrub-based effects** (tiltIn, parallax — processed before tagMap so elements aren't grabbed by tagMap first)
 5. tagMap auto-animation
 6. `fx-stagger-all-[selector]` modifier
 
@@ -94,6 +104,8 @@ init() uses a `processed` Set to avoid double-animating:
 - Three tabs: Editor (CodeMirror), Config Reference, Classes Reference
 - Custom JS saved to `wp-content/uploads/fancoolo-fx/custom.js`
 - Click-to-copy on all classes and code examples
+- Settings sidebar: scroll start, section selector, exclude selectors, play once, debug markers, disable mobile, reduced motion, speed multiplier, global tag map
+- Import/export settings as JSON, reset to defaults
 
 ## Publishing
 

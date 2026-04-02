@@ -19,6 +19,8 @@ Uses bracket syntax (inspired by Tailwind CSS arbitrary values) so decimal value
 | `fx-stagger-[n]` | `0.1` | Number (seconds) | Delay between staggered siblings |
 | `fx-ease-[name]` | `power3.out` | String | GSAP easing function |
 | `fx-start-[pos]` | `top 85%` | String | ScrollTrigger start position (scroll-triggered only) |
+| `fx-y-[n]` | `50` | Number (pixels) | Parallax Y-shift intensity (parallax only) |
+| `fx-scrub-[n]` | `0.6` | Number | Scrub smoothing for drawSVG scrub mode |
 
 ## Duration
 

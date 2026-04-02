@@ -9,7 +9,7 @@ license: MIT
 ## When to Use This Skill
 
 Apply when working with the `fancoolo-fx` package or when the user mentions:
-- FX animation classes (`fx-text-reveal`, `fx-reveal`, `fx-spin-reveal`, `fx-bg-reveal`, `fx-scale-in`)
+- FX animation classes (`fx-text-reveal`, `fx-reveal`, `fx-spin-reveal`, `fx-bg-reveal`, `fx-scale-in`, `fx-type-writer`, `fx-draw-svg`, `fx-parallax`, `fx-split-words`, `fx-slide-left`, `fx-slide-right`)
 - Trigger suffixes (`-pl`, `-st`, bare classes in sections)
 - FX modifier classes (`fx-duration-[n]`, `fx-delay-[n]`, `fx-stagger-[n]`, `fx-ease-[name]`, `fx-start-[pos]`)
 - `FX.config`, `__FX_CONFIG__`, `tagMap`, `sectionSelector`, `scrollStart`, `scrollOnce`
@@ -51,6 +51,11 @@ Load in this order:
 | Clip Up | `fx-clip-up` | `FX.clipUp()` | Clip-path wipe from bottom | 1s | power3.inOut |
 | Clip Down | `fx-clip-down` | `FX.clipDown()` | Clip-path wipe from top | 1s | power3.inOut |
 | Tilt In | `fx-tilt-in` | `FX.tiltIn()` | 3D perspective reveal (scrub-based) | 1.4s | power3.out |
+| Type Writer | `fx-type-writer` | `FX.typeWriter()` | Character-by-character typing reveal | 0.05s | none |
+| Draw SVG | `fx-draw-svg` | `FX.drawSVG()` | SVG stroke drawing animation | 2s | power2.inOut |
+| Parallax | `fx-parallax` | `FX.parallax()` | Scrub-based Y-shift on scroll | — | none |
+| Split Words | `fx-split-words` | `FX.splitWords()` | Word-by-word fade + slide up | 0.8s | power3.out |
+| Slide In | `fx-slide-left` / `fx-slide-right` | `FX.slideIn()` | Horizontal slide from left/right | 1s | power3.out |
 
 ## Stagger Children Modifier
 
@@ -110,6 +115,11 @@ Example: `<h2 class="fx-text-reveal-st fx-duration-[2] fx-stagger-[0.25]">`
 | `scrollStart` | `'top 85%'` | Default ScrollTrigger start position |
 | `scrollOnce` | `true` | Play once or replay on re-scroll |
 | `tagMap` | `null` | Map of CSS selectors to effect names |
+| `excludeSelectors` | `''` | CSS selectors for elements to never animate |
+| `disableMobile` | `false` | Skip all animations on mobile |
+| `mobileBreakpoint` | `768` | Width threshold for mobile detection (px) |
+| `speedMultiplier` | `1` | Global duration multiplier (0.5 = faster, 2 = slower) |
+| `respectReducedMotion` | `true` | Skip animations when OS prefers reduced motion |
 
 Pre-configure via `window.__FX_CONFIG__` before the script loads, or modify `FX.config` at runtime and call `FX.init()`.
 
@@ -124,6 +134,11 @@ FX.spinReveal(el, { rotation: -45, scale: 0.8 });
 FX.scaleIn(el, { trigger: 'scroll', scale: 0.85 });
 FX.bgReveal(el);
 FX.init(); // Re-scan DOM
+FX.typeWriter(el, { trigger: 'scroll' });
+FX.drawSVG(svgEl, { trigger: 'scroll' });
+FX.parallax(el, { y: 80 });
+FX.splitWords(el, { trigger: 'scroll' });
+FX.slideIn(el, { direction: 'left', trigger: 'scroll' });
 ```
 
 Set `trigger: 'scroll'` to enable ScrollTrigger. Pass `scrollTrigger: { trigger: someEl }` to use a different trigger element.
@@ -138,7 +153,9 @@ Siblings with the same `.fx-*` class under the same parent are staggered automat
 1. `-pl` classes (page load) — first
 2. `-st` classes (scroll trigger) — second
 3. Bare classes in sections — third
-4. tagMap — last
+4. Scrub-based effects (tiltIn, parallax)
+5. tagMap — last
+6. `fx-stagger-all-[selector]` modifier
 
 Each step skips already-processed elements.
 
@@ -155,6 +172,17 @@ wp_enqueue_script('gsap-scrolltrigger', get_template_directory_uri() . '/assets/
 wp_enqueue_script('gsap-splittext', get_template_directory_uri() . '/assets/js/SplitText.min.js', array('gsap'), '3.14.2', true);
 wp_enqueue_script('fx', get_template_directory_uri() . '/assets/js/fx.js', array('gsap', 'gsap-scrolltrigger', 'gsap-splittext'), '1.0.0', true);
 ```
+
+## WordPress Plugin Settings
+
+Admin page at **Appearance → Fancoolo FX** with three tabs:
+- **Editor** — CodeMirror JS editor + settings sidebar
+- **Config Reference** — config options, JS API functions, code examples
+- **Classes Reference** — all available CSS classes
+
+Settings sidebar controls: Scroll Start, Section Selector, Exclude Selectors, Play once, Debug markers, Disable on mobile (with breakpoint), Respect reduced motion, Speed Multiplier, Global Tag Map (repeater), Import/Export/Reset.
+
+All sidebar settings are injected as `window.__FX_CONFIG__` before fx.js loads.
 
 ## Adding New Effects
 
