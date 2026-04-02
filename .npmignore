@@ -1,5 +1,7 @@
 docs/
 skills/
+wp-plugin/
 .claude/
+.github/
 .nojekyll
 CLAUDE.md
