@@ -3,7 +3,7 @@
  * Plugin Name: Fancoolo FX
  * Plugin URI: https://github.com/krstivoja/fancoolo-fx
  * Description: A class-driven GSAP animation wrapper. Add CSS classes in Gutenberg and get animations — no JavaScript needed.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Fancoolo
  * Author URI: https://github.com/krstivoja
  * License: ISC
@@ -14,9 +14,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'FANCOOLO_FX_VERSION', '1.2.0' );
+define( 'FANCOOLO_FX_VERSION', '1.3.0' );
 define( 'FANCOOLO_FX_PATH', plugin_dir_path( __FILE__ ) );
 define( 'FANCOOLO_FX_URL', plugin_dir_url( __FILE__ ) );
+
+/**
+ * ─── Settings helpers ───────────────────────────────────────────────
+ */
+function fancoolo_fx_get_settings() {
+	return wp_parse_args( get_option( 'fancoolo_fx_settings', array() ), array(
+		'scroll_start'     => 'top 85%',
+		'scroll_once'      => '1',
+		'section_selector' => 'section',
+		'debug_markers'    => '0',
+	) );
+}
 
 /**
  * ─── Frontend: Enqueue GSAP + FX scripts ────────────────────────────
@@ -58,7 +70,22 @@ function fancoolo_fx_enqueue_scripts() {
 		true
 	);
 
-	// 5. Custom modifiers (if file exists and is not empty)
+	// 5. Inject settings as __FX_CONFIG__ before fx.js
+	$s = fancoolo_fx_get_settings();
+	$config_js = sprintf(
+		'window.__FX_CONFIG__ = { scrollStart: %s, scrollOnce: %s, sectionSelector: %s };',
+		wp_json_encode( $s['scroll_start'] ),
+		$s['scroll_once'] ? 'true' : 'false',
+		wp_json_encode( $s['section_selector'] )
+	);
+	wp_add_inline_script( 'fancoolo-fx', $config_js, 'before' );
+
+	// 6. Debug markers (admin only)
+	if ( $s['debug_markers'] && is_user_logged_in() && current_user_can( 'manage_options' ) ) {
+		wp_add_inline_script( 'gsap-scrolltrigger', 'document.addEventListener("DOMContentLoaded", function() { ScrollTrigger.defaults({ markers: true }); });' );
+	}
+
+	// 7. Custom modifiers (if file exists and is not empty)
 	$custom_file = fancoolo_fx_get_custom_file_path();
 	if ( file_exists( $custom_file ) && filesize( $custom_file ) > 0 ) {
 		$upload_dir = wp_upload_dir();
@@ -143,6 +170,7 @@ function fancoolo_fx_handle_save() {
 		return;
 	}
 
+	// Save custom JS
 	$content = isset( $_POST['fancoolo_fx_code'] ) ? wp_unslash( $_POST['fancoolo_fx_code'] ) : '';
 
 	$upload_dir = wp_upload_dir();
@@ -155,10 +183,19 @@ function fancoolo_fx_handle_save() {
 	$file = $dir . '/custom.js';
 	file_put_contents( $file, $content );
 
+	// Save settings
+	$settings = array(
+		'scroll_start'     => sanitize_text_field( $_POST['fancoolo_fx_scroll_start'] ?? 'top 85%' ),
+		'scroll_once'      => isset( $_POST['fancoolo_fx_scroll_once'] ) ? '1' : '0',
+		'section_selector' => sanitize_text_field( $_POST['fancoolo_fx_section_selector'] ?? 'section' ),
+		'debug_markers'    => isset( $_POST['fancoolo_fx_debug_markers'] ) ? '1' : '0',
+	);
+	update_option( 'fancoolo_fx_settings', $settings );
+
 	add_settings_error(
 		'fancoolo_fx',
 		'fancoolo_fx_saved',
-		'Custom JavaScript saved.',
+		'Settings saved.',
 		'success'
 	);
 }
@@ -170,6 +207,7 @@ add_action( 'admin_init', 'fancoolo_fx_handle_save' );
 function fancoolo_fx_render_admin_page() {
 	$custom_file = fancoolo_fx_get_custom_file_path();
 	$content     = file_exists( $custom_file ) ? file_get_contents( $custom_file ) : '';
+	$s           = fancoolo_fx_get_settings();
 
 	settings_errors( 'fancoolo_fx' );
 	?>
@@ -180,9 +218,18 @@ function fancoolo_fx_render_admin_page() {
 		.ffx-tab.active { background: #fff; border-color: #c3c4c7; color: #1d2327; }
 		.ffx-panel { display: none; background: #fff; border: 1px solid #c3c4c7; border-top: none; padding: 24px; }
 		.ffx-panel.active { display: block; }
-		.ffx-panel-editor { padding: 0; position: relative; }
+		.ffx-panel-editor { padding: 0; position: relative; display: flex; }
+		.ffx-panel-editor .ffx-editor-main { flex: 1; min-width: 0; position: relative; }
 		.ffx-panel-editor .CodeMirror { border: none; }
 		.ffx-save-btn { position: absolute; top: 12px; right: 12px; z-index: 10; }
+		.ffx-sidebar { width: 280px; border-left: 1px solid #c3c4c7; background: #f6f7f7; padding: 16px; flex-shrink: 0; }
+		.ffx-sidebar h3 { font-size: 13px; font-weight: 600; margin: 0 0 12px; color: #1d2327; }
+		.ffx-sidebar label { display: block; font-size: 13px; color: #1d2327; margin-bottom: 4px; font-weight: 500; }
+		.ffx-sidebar input[type="text"] { width: 100%; margin-bottom: 12px; }
+		.ffx-sidebar .ffx-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+		.ffx-sidebar .ffx-toggle label { margin: 0; font-weight: 400; }
+		.ffx-sidebar .ffx-hint { font-size: 11px; color: #646970; margin: -8px 0 12px; }
+		.ffx-sidebar hr { border: none; border-top: 1px solid #dcdcde; margin: 16px 0; }
 		.ffx-copy-wrap { position: relative; }
 		.ffx-copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 10px; font-size: 11px; cursor: pointer; background: #3c434a; color: #bbb; border: 1px solid #555; border-radius: 3px; }
 		.ffx-copy-btn:hover { color: #fff; border-color: #888; }
@@ -216,13 +263,44 @@ function fancoolo_fx_render_admin_page() {
 		<div class="ffx-panel ffx-panel-editor active" data-panel="editor">
 			<form method="post">
 				<?php wp_nonce_field( 'fancoolo_fx_save_action', 'fancoolo_fx_nonce' ); ?>
-				<input type="submit" name="fancoolo_fx_save" class="button button-primary ffx-save-btn" value="Save Changes">
-				<textarea
-					id="fancoolo-fx-editor"
-					name="fancoolo_fx_code"
-					rows="20"
-					style="width: 100%; font-family: monospace;"
-				><?php echo esc_textarea( $content ); ?></textarea>
+
+				<!-- Editor main area -->
+				<div class="ffx-editor-main">
+					<input type="submit" name="fancoolo_fx_save" class="button button-primary ffx-save-btn" value="Save Changes">
+					<textarea
+						id="fancoolo-fx-editor"
+						name="fancoolo_fx_code"
+						rows="20"
+						style="width: 100%; font-family: monospace;"
+					><?php echo esc_textarea( $content ); ?></textarea>
+				</div>
+
+				<!-- Settings sidebar -->
+				<div class="ffx-sidebar">
+					<h3>Settings</h3>
+
+					<label for="ffx-scroll-start">Scroll Start</label>
+					<input type="text" id="ffx-scroll-start" name="fancoolo_fx_scroll_start" value="<?php echo esc_attr( $s['scroll_start'] ); ?>" placeholder="top 85%">
+					<p class="ffx-hint">When scroll animations trigger (e.g. top 85%, top center)</p>
+
+					<label for="ffx-section-selector">Section Selector</label>
+					<input type="text" id="ffx-section-selector" name="fancoolo_fx_section_selector" value="<?php echo esc_attr( $s['section_selector'] ); ?>" placeholder="section">
+					<p class="ffx-hint">Containers for bare-class triggering</p>
+
+					<hr>
+
+					<div class="ffx-toggle">
+						<input type="checkbox" id="ffx-scroll-once" name="fancoolo_fx_scroll_once" value="1" <?php checked( $s['scroll_once'], '1' ); ?>>
+						<label for="ffx-scroll-once">Play once</label>
+					</div>
+					<p class="ffx-hint">Uncheck to replay animations on every scroll</p>
+
+					<div class="ffx-toggle">
+						<input type="checkbox" id="ffx-debug-markers" name="fancoolo_fx_debug_markers" value="1" <?php checked( $s['debug_markers'], '1' ); ?>>
+						<label for="ffx-debug-markers">Debug markers</label>
+					</div>
+					<p class="ffx-hint">Show ScrollTrigger markers (admin only, visitors won't see them)</p>
+				</div>
 			</form>
 		</div>
 
