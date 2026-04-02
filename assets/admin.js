@@ -102,6 +102,7 @@ jQuery(function($) {
 			mobile_breakpoint: $('#ffx-mobile-breakpoint').val(),
 			speed_multiplier: $('#ffx-speed-multiplier').val(),
 			respect_reduced_motion: $('#ffx-respect-reduced-motion').is(':checked') ? '1' : '0',
+			gutenberg_panel: $('#ffx-gutenberg-panel').is(':checked') ? '1' : '0',
 			tag_map: tagMap,
 			custom_js: ''
 		};
@@ -152,6 +153,7 @@ jQuery(function($) {
 			$('#ffx-debug-markers').prop('checked', data.debug_markers === '1');
 			$('#ffx-disable-mobile').prop('checked', data.disable_mobile === '1').trigger('change');
 			$('#ffx-respect-reduced-motion').prop('checked', data.respect_reduced_motion === '1');
+			$('#ffx-gutenberg-panel').prop('checked', data.gutenberg_panel !== '0');
 
 			// Rebuild tag map
 			$('#ffx-tagmap-rows').empty();
@@ -199,6 +201,7 @@ jQuery(function($) {
 		$('#ffx-debug-markers').prop('checked', false);
 		$('#ffx-disable-mobile').prop('checked', false).trigger('change');
 		$('#ffx-respect-reduced-motion').prop('checked', true);
+		$('#ffx-gutenberg-panel').prop('checked', true);
 
 		$('#ffx-tagmap-rows').empty();
 

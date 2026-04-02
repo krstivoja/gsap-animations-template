@@ -111,13 +111,14 @@ const withFxPanel = createHigherOrderComponent( ( BlockEdit ) => {
 
 						{ hasEffect && ! isScrub && (
 							<ToggleGroupControl
-								label={ __( 'Trigger', 'fancoolo-fx' ) }
-								value={ trigger || 'st' }
-								onChange={ ( val ) => updateFx( { trigger: val } ) }
+								label={ __( 'Animation starts', 'fancoolo-fx' ) }
+								value={ trigger === '' ? 'section' : ( trigger || 'st' ) }
+								onChange={ ( val ) => updateFx( { trigger: val === 'section' ? '' : val } ) }
 								isBlock
 							>
-								<ToggleGroupControlOption value="st" label={ __( 'Scroll', 'fancoolo-fx' ) } />
-								<ToggleGroupControlOption value="pl" label={ __( 'Page Load', 'fancoolo-fx' ) } />
+								<ToggleGroupControlOption value="st" label={ __( 'Item', 'fancoolo-fx' ) } />
+								<ToggleGroupControlOption value="section" label={ __( 'Trigger', 'fancoolo-fx' ) } />
+								<ToggleGroupControlOption value="pl" label={ __( 'Page', 'fancoolo-fx' ) } />
 								{ isDrawSvg && (
 									<ToggleGroupControlOption value="scrub" label={ __( 'Scrub', 'fancoolo-fx' ) } />
 								) }
@@ -126,7 +127,7 @@ const withFxPanel = createHigherOrderComponent( ( BlockEdit ) => {
 
 						{ hasEffect && (
 							<>
-								<div style={ { display: 'flex', gap: '8px' } }>
+								<div style={ { display: 'flex', gap: '8px', marginBottom: '16px' } }>
 									<div style={ { flex: 1 } }>
 										<NumberControl
 											label={ __( 'Duration', 'fancoolo-fx' ) }

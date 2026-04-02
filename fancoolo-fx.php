@@ -32,6 +32,7 @@ function fancoolo_fx_get_settings() {
 		'speed_multiplier' => '1',
 		'respect_reduced_motion' => '1',
 		'exclude_selectors' => '',
+		'gutenberg_panel'  => '1',
 		'tag_map'          => array(),
 	) );
 }
@@ -126,6 +127,10 @@ add_action( 'wp_enqueue_scripts', 'fancoolo_fx_enqueue_scripts' );
  * ─── Block Editor: Enqueue FX Animation inspector panel ────────────
  */
 function fancoolo_fx_enqueue_editor_assets() {
+	$s = fancoolo_fx_get_settings();
+	if ( ! $s['gutenberg_panel'] ) {
+		return;
+	}
 	$asset_file = FANCOOLO_FX_PATH . 'assets/editor/index.asset.php';
 	if ( ! file_exists( $asset_file ) ) {
 		return;
@@ -262,6 +267,7 @@ function fancoolo_fx_handle_save() {
 		'speed_multiplier' => sanitize_text_field( $_POST['fancoolo_fx_speed_multiplier'] ?? '1' ),
 		'respect_reduced_motion' => isset( $_POST['fancoolo_fx_respect_reduced_motion'] ) ? '1' : '0',
 		'exclude_selectors' => sanitize_text_field( $_POST['fancoolo_fx_exclude_selectors'] ?? '' ),
+		'gutenberg_panel'  => isset( $_POST['fancoolo_fx_gutenberg_panel'] ) ? '1' : '0',
 		'tag_map'          => $tag_map,
 	);
 	update_option( 'fancoolo_fx_settings', $settings );
@@ -369,6 +375,12 @@ function fancoolo_fx_render_admin_page() {
 							<option value="<?php echo esc_attr( $val ); ?>" <?php selected( $s['speed_multiplier'], $val ); ?>><?php echo esc_html( $lbl ); ?></option>
 						<?php endforeach; ?>
 					</select>
+
+					<div class="ffx-toggle">
+						<input type="checkbox" id="ffx-gutenberg-panel" name="fancoolo_fx_gutenberg_panel" value="1" <?php checked( $s['gutenberg_panel'], '1' ); ?>>
+						<label for="ffx-gutenberg-panel">Gutenberg integration</label>
+					</div>
+					<p class="ffx-hint">Show FX Animation panel in the block editor sidebar</p>
 
 					<hr>
 
