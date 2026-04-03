@@ -1,4 +1,4 @@
 node_modules/
 dist/
-*.map
-.DS_Store
+
+**/.DS_Store

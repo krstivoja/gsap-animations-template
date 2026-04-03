@@ -1,41 +1,53 @@
-name: Release WordPress Plugin
+name: Build and Release
 
 on:
   push:
     tags:
-      - '[0-9]*'
-
-permissions:
-  contents: write
+      - '[0-9]+'
+      - '[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  release:
+  dist:
+    name: "Build distribution release."
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    steps:
+      - name: "Checks out the repository."
+        uses: "actions/checkout@v4"
+
+      - name: "Setup NodeJS."
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build editor assets
-        run: npm run build
-
-      - name: Create plugin zip
+      - name: "Install NPM dependencies"
         run: |
-          mkdir fancoolo-fx
-          cp fancoolo-fx.php fancoolo-fx/
-          cp readme.txt fancoolo-fx/
-          cp -r assets fancoolo-fx/
-          zip -r fancoolo-fx.zip fancoolo-fx/
+          if [ -f package.json ]; then
+            npm ci
+          fi
 
-      - name: Create GitHub Release
+      - name: "Build release"
+        run: |
+          if [ -f package.json ]; then
+            npm run build
+          fi
+
+      - name: "Copy files to distribution directory excluding .distignore entries"
+        run: |
+          if [ -f .distignore ]; then
+            rsync -a --delete --exclude-from='.distignore' ./ dist/
+          else
+            rsync -a --delete ./ dist/
+          fi
+
+      - name: "Create a Release Archive"
+        run: |
+          cd dist
+          zip -r ../fancoolo-fx.zip .
+
+      - name: "Create a GitHub Release"
         uses: softprops/action-gh-release@v2
         with:
           files: fancoolo-fx.zip
